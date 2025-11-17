@@ -97,4 +97,20 @@ public class MystiaManager
         _cachedInputGenerator = null;
     }
 
+    public Vector2? GetPosition()
+    {
+        var rb = GetRigidbody2D();
+        return rb?.position;
+    }
+
+    public string GetMapLabel()
+    {
+        var sceneManager = DayScene.SceneManager.Instance;
+        if (sceneManager == null)
+        {
+            Log.LogMessage("未找到 DayScene.SceneManager 实例");
+            return null;
+        }
+        return sceneManager.CurrentActiveMapLabel;
+    }
 }
