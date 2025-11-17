@@ -1,0 +1,100 @@
+using System;
+using BepInEx.Logging;
+using UnityEngine;
+using Common.CharacterUtility;
+
+namespace MetaMystia;
+
+public class MystiaManager
+{
+    private static MystiaManager _instance;
+    private static readonly object _lock = new object();
+    
+    private DayScene.Input.DayScenePlayerInputGenerator _cachedInputGenerator;
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    public static MystiaManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new MystiaManager();
+                    }
+                }
+            }
+            return _instance;
+        }
+    }
+
+    private MystiaManager()
+    {
+    }
+
+    public DayScene.Input.DayScenePlayerInputGenerator GetInputGenerator(bool forceRefresh = false)
+    {
+        if (_cachedInputGenerator == null || forceRefresh)
+        {
+            var characters = UnityEngine.Object.FindObjectsOfType<DayScene.Input.DayScenePlayerInputGenerator>();
+            if (characters == null || characters.Length == 0)
+            {
+                Log.LogMessage("未找到 DayScenePlayerInputGenerator 实例");
+                return null;
+            }
+            if (characters.Length > 1)
+            {
+                Log.LogWarning($"找到 {characters.Length} 个 DayScenePlayerInputGenerator 实例，使用第一个");
+            }
+
+            _cachedInputGenerator = characters[0];
+        }
+
+        return _cachedInputGenerator;
+    }
+
+    public CharacterControllerUnit GetCharacterUnit(bool forceRefresh = false)
+    {
+        var inputGenerator = GetInputGenerator(forceRefresh);
+        if (inputGenerator == null)
+        {
+            return null;
+        }
+
+        var characterUnit = inputGenerator.Character;
+        if (characterUnit == null)
+        {
+            Log.LogMessage("CharacterControllerUnit 为空");
+            return null;
+        }
+
+        return characterUnit;
+    }
+
+    public Rigidbody2D GetRigidbody2D(bool forceRefresh = false)
+    {
+        var characterUnit = GetCharacterUnit(forceRefresh);
+        if (characterUnit == null)
+        {
+            return null;
+        }
+
+        var rb = characterUnit.rb2d;
+        if (rb == null)
+        {
+            Log.LogMessage("Rigidbody2D 为空");
+            return null;
+        }
+
+        return rb;
+    }
+
+    public void ClearCache()
+    {
+        _cachedInputGenerator = null;
+    }
+
+}
