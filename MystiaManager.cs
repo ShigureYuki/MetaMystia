@@ -202,4 +202,10 @@ public class MystiaManager
         }
         return sceneManager.CurrentActiveMapLabel;
     }
+
+    public void UpdateMapLabel()
+    {
+        var currentActiveMapLabel = GetMapLabel();
+        MultiplayerManager.Instance.SendMapLabel(currentActiveMapLabel);
+    }
 }

@@ -13,6 +13,8 @@ public class KyoukoManager
     
     private const string KYOUKO_ID = "Kyouko";
     private static ManualLogSource Log => Plugin.Instance.Log;
+
+    private static string CurrentActiveMapLabel;
     private static Vector2 positionOffset;          // 位置偏移量 (收到同步信息时)= 同步位置 - 本地 Kyouko 位置         (FixedUpdate 时计算) positionOffset -= actualCurrectVelocity * Time.fixedDeltaTime;
     private static Vector2 expectedCurrectVelocity; // 预期修正速度 = 位置偏移量 / 修正系数 / Time.fixedDeltaTime               (同步时计算)
     private static Vector2 actualCurrectVelocity;   // 实际修正速度 = min{预期修正速度, positionOffset / Time.fixedDeltaTime}   (FixedUpdate)
@@ -250,5 +252,14 @@ public class KyoukoManager
         characterUnit.inputDirection = new Vector3(x, y, z);
         Log.LogInfo($"Kyouko input direction set to ({x}, {y}, {z})");
         return true;
+    }
+
+    public void UpdateMapLabel(string mapLabel)
+    {
+        CurrentActiveMapLabel = mapLabel;
+        
+        Log.LogMessage($"Updated Kyouko map label to '{mapLabel}'");
+
+        // todo: set visibility based on mapLabel
     }
 }

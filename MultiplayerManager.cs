@@ -330,6 +330,14 @@ public class MultiplayerManager
                 }
                 break;
 
+            case "enter":
+                // format: enter <mapLabel>
+                if (parts.Length >= 2)
+                {
+                    string mapLabel = parts[1];
+                    Log.LogInfo($"Peer entered map: {mapLabel}");
+                }
+                break;
             default:
                 Log.LogWarning($"Unknown peer command: {command}");
                 break;
@@ -447,5 +455,19 @@ public class MultiplayerManager
         }
 
         return status.ToString();
+    }
+
+    public void SendMapLabel(string mapLabel)
+    {
+        if (_isConnected)
+        {
+            // format: enter <mapLabel>
+            Log.LogInfo($"Sending map label to peer: {mapLabel}");
+            SendToPeer($"enter {mapLabel}\n");
+        }
+        else
+        {
+            Log.LogWarning("Cannot send map label: not connected");
+        }
     }
 }
