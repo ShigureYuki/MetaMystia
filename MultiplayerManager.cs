@@ -317,6 +317,18 @@ public class MultiplayerManager
                     }
                 }
                 break;
+            
+            case "sprint":
+                // format: sprint <false|true> <px> <py>
+                if (parts.Length >= 4)
+                {
+                    if (bool.TryParse(parts[1], out bool isSprinting) &&
+                        float.TryParse(parts[2], out float px) && float.TryParse(parts[3], out float py))
+                    {
+                        KyoukoManager.Instance.UpdateSprintState(isSprinting, new UnityEngine.Vector2(px, py)); // todo: change to MystiaManager 
+                    }
+                }
+                break;
 
             default:
                 Log.LogWarning($"Unknown peer command: {command}");
@@ -389,6 +401,17 @@ public class MultiplayerManager
                 string message = $"move {inputDirection.x} {inputDirection.y} {position.Value.x} {position.Value.y}\n";
                 SendToPeer(message);
             }
+        }
+    }
+
+    public void SendSprintData(bool isSprinting)
+    {
+        if (_isConnected)
+        {
+            // format: sprint <false|true> <px> <py>
+            var position = MystiaManager.Instance.GetPosition();
+            string message = $"sprint {isSprinting} {position.Value.x} {position.Value.y}\n";
+            SendToPeer(message);
         }
     }
 

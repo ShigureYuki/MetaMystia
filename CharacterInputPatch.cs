@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using Common.CharacterUtility;
 using BepInEx.Logging;
+using DayScene.Input;
 
 namespace MetaMystia;
 
@@ -26,5 +27,25 @@ public class CharacterInputPatch
         {
             Log.LogError($"Error in UpdateInputDirection_Prefix: {e.Message}");
         }
+    }
+}
+
+[HarmonyPatch(typeof(DayScenePlayerInputGenerator))]
+public class DayScenePlayerInputPatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    [HarmonyPatch(nameof(DayScenePlayerInputGenerator.OnSprintPerformed))]
+    [HarmonyPrefix]
+    public static void OnSprintPerformed_Prefix()
+    {
+        MultiplayerManager.Instance.SendSprintData(true);
+    }
+
+    [HarmonyPatch(nameof(DayScenePlayerInputGenerator.OnSprintCanceled))]
+    [HarmonyPrefix]
+    public static void OnSprintCanceled_Prefix()
+    {
+        MultiplayerManager.Instance.SendSprintData(false);
     }
 }

@@ -46,6 +46,10 @@ public class Plugin : BasePlugin
             // Character input patch for multiplayer
             harmony.PatchAll(typeof(CharacterInputPatch));
             Log.LogInfo("Applied CharacterInputPatch");
+
+            // DayScene player input patch for sprint logging
+            harmony.PatchAll(typeof(DayScenePlayerInputPatch));
+            Log.LogInfo("Applied DayScenePlayerInputPatch");
         }
         catch {
             Log.LogError("FAILED to Apply Hooks!");

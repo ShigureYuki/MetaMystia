@@ -186,6 +186,22 @@ public class KyoukoManager
         expectedCurrectVelocity = positionOffset / currectCoefficient / Time.fixedDeltaTime;
     }
 
+    public void UpdateSprintState(bool isSprinting, Vector2 position)
+    {
+        var characterUnit = GetCharacterUnit();
+        if (characterUnit == null)
+        {
+            Log.LogWarning("Cannot update sprint state: CharacterControllerUnit is null");
+            return;
+        }
+
+        characterUnit.sprintMultiplier = isSprinting ? 1.5f : 1.0f;
+        Log.LogMessage($"Update sprint state: {isSprinting}");
+
+        positionOffset = position - characterUnit.rb2d.position;
+        expectedCurrectVelocity = positionOffset / currectCoefficient / Time.fixedDeltaTime;
+    }
+
     public float? GetMoveSpeed()
     {
         var characterUnit = GetCharacterUnit();
