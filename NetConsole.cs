@@ -268,7 +268,7 @@ public class NetConsole
         if (args.Length == 0)
         {
             SendToClient(client, "Usage: get <field>\n");
-            SendToClient(client, "Available fields: mystia position, mystia moving, mystia movespeed, mystia inputdirection, kyouko position, kyouko moving, kyouko movespeed, kyouko inputdirection, currentactivemaplabel\n");
+            SendToClient(client, "Available fields: mystia position, mystia moving, mystia inputdirection, kyouko position, kyouko moving, kyouko inputdirection, currentactivemaplabel\n");
             return;
         }
 
@@ -278,110 +278,47 @@ public class NetConsole
         {
             case "mystia position":
                 var mystiaPos = MystiaManager.Instance.GetPosition();
-                if (mystiaPos.HasValue)
-                {
-                    SendToClient(client, $"Mystia Position: ({mystiaPos.Value.x}, {mystiaPos.Value.y})\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Mystia position\n");
-                }
+                SendToClient(client, $"Mystia Position: ({mystiaPos.x}, {mystiaPos.y})\n");
                 break;
 
             case "mystia moving":
                 var mystiaMoving = MystiaManager.Instance.GetMoving();
-                if (mystiaMoving.HasValue)
-                {
-                    SendToClient(client, $"Mystia Moving: {mystiaMoving.Value}\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Mystia moving status\n");
-                }
+                SendToClient(client, $"Mystia Moving: {mystiaMoving}\n");
                 break;
-
+            
             case "mystia movespeed":
                 var mystiaMoveSpeed = MystiaManager.Instance.GetMoveSpeed();
-                if (mystiaMoveSpeed.HasValue)
-                {
-                    SendToClient(client, $"Mystia Move Speed: {mystiaMoveSpeed.Value}\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Mystia move speed\n");
-                }
+                SendToClient(client, $"Mystia Move Speed: {mystiaMoveSpeed}\n");
                 break;
 
             case "mystia inputdirection":
                 var mystiaInputDir = MystiaManager.Instance.GetInputDirection();
-                if (mystiaInputDir.HasValue)
-                {
-                    SendToClient(client, $"Mystia Input Direction: ({mystiaInputDir.Value.x}, {mystiaInputDir.Value.y}, {mystiaInputDir.Value.z})\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Mystia input direction\n");
-                }
+                SendToClient(client, $"Mystia Input Direction: ({mystiaInputDir.x}, {mystiaInputDir.y}, {mystiaInputDir.z})\n");
                 break;
 
             case "kyouko position":
                 var kyoukoPos = KyoukoManager.Instance.GetPosition();
-                if (kyoukoPos.HasValue)
-                {
-                    SendToClient(client, $"Kyouko Position: ({kyoukoPos.Value.x}, {kyoukoPos.Value.y})\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Kyouko position\n");
-                }
+                SendToClient(client, $"Kyouko Position: ({kyoukoPos.x}, {kyoukoPos.y})\n");
                 break;
 
             case "kyouko moving":
                 var kyoukoMoving = KyoukoManager.Instance.GetMoving();
-                if (kyoukoMoving.HasValue)
-                {
-                    SendToClient(client, $"Kyouko Moving: {kyoukoMoving.Value}\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Kyouko moving status\n");
-                }
+                SendToClient(client, $"Kyouko Moving: {kyoukoMoving}\n");
                 break;
 
             case "kyouko movespeed":
                 var kyoukoMoveSpeed = KyoukoManager.Instance.GetMoveSpeed();
-                if (kyoukoMoveSpeed.HasValue)
-                {
-                    SendToClient(client, $"Kyouko Move Speed: {kyoukoMoveSpeed.Value}\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Kyouko move speed\n");
-                }
+                SendToClient(client, $"Kyouko Move Speed: {kyoukoMoveSpeed}\n");
                 break;
 
             case "kyouko inputdirection":
                 var kyoukoInputDir = KyoukoManager.Instance.GetInputDirection();
-                if (kyoukoInputDir.HasValue)
-                {
-                    SendToClient(client, $"Kyouko Input Direction: ({kyoukoInputDir.Value.x}, {kyoukoInputDir.Value.y}, {kyoukoInputDir.Value.z})\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get Kyouko input direction\n");
-                }
+                SendToClient(client, $"Kyouko Input Direction: ({kyoukoInputDir.x}, {kyoukoInputDir.y}, {kyoukoInputDir.z})\n");
                 break;
 
             case "currentactivemaplabel":
                 var mapLabel = Utils.GetCurrentActiveMapLabel();
-                if (mapLabel != null)
-                {
-                    SendToClient(client, $"Current Active Map Label: {mapLabel}\n");
-                }
-                else
-                {
-                    SendToClient(client, "Failed to get current active map label\n");
-                }
+                SendToClient(client, $"Current Active Map Label: {mapLabel}\n");
                 break;
 
             default:
@@ -644,11 +581,13 @@ public class NetConsole
             SendToClient(client, "Subcommands:\n");
             SendToClient(client, "  start            - Start multiplayer\n");
             SendToClient(client, "  stop             - Stop multiplayer\n");
+            SendToClient(client, "  restart          - Restart multiplayer\n");
             SendToClient(client, "  status           - Show connection status\n");
             SendToClient(client, "  ping             - Send ping to peer\n");
             SendToClient(client, "  id               - Show local ID\n");
             SendToClient(client, "  connect <ip>     - Connect to peer IP\n");
             SendToClient(client, "  disconnect       - Disconnect from peer\n");
+            SendToClient(client, "  debug            - Show debug information\n");
             return;
         }
 
@@ -664,6 +603,11 @@ public class NetConsole
             case "stop":
                 MultiplayerManager.Instance.Stop();
                 SendToClient(client, "Multiplayer stopped\n");
+                break;
+
+            case "restart":
+                MultiplayerManager.Instance.Restart();
+                SendToClient(client, "Multiplayer restarted\n");
                 break;
 
             case "status":
@@ -724,8 +668,9 @@ public class NetConsole
 
             default:
                 SendToClient(client, $"Unknown subcommand: {subcommand}\n");
-                SendToClient(client, "Available subcommands: start, stop, status, ping, id, connect, disconnect\n");
+                SendToClient(client, "Available subcommands: start, stop, restart, status, ping, id, connect, disconnect\n");
                 break;
         }
     }
+
 }

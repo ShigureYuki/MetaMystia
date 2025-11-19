@@ -50,6 +50,14 @@ public class Plugin : BasePlugin
             // DayScene player input patch for sprint logging
             harmony.PatchAll(typeof(DayScenePlayerInputPatch));
             Log.LogInfo("Applied DayScenePlayerInputPatch");
+
+            // RunTime scheduler patch for scene enter logging
+            harmony.PatchAll(typeof(RunTimeSchedulerPatch));
+            Log.LogInfo("Applied RunTimeSchedulerPatch");
+
+            // DayScene map patch for persistent NPCs
+            harmony.PatchAll(typeof(DaySceneMapPatch));
+            Log.LogInfo("Applied DaySceneMapPatch");
         }
         catch {
             Log.LogError("FAILED to Apply Hooks!");

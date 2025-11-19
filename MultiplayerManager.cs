@@ -18,6 +18,7 @@ public class MultiplayerManager
 
     private string playerId = System.Environment.MachineName;
     private string peerId = "<Unknown>";
+    private bool _hassentFirstMove = false;
 
     private TcpListener _tcpListener;
     private Thread _tcpListenerThread;
@@ -156,7 +157,6 @@ public class MultiplayerManager
                         TcpClient client = _tcpListener.AcceptTcpClient();
                         Log.LogInfo($"Connection from {client.Client.RemoteEndPoint} accepted");
                         AcceptPeerConnection(client);
-                        SendHello();
                     }
                 }
                 else
@@ -197,6 +197,8 @@ public class MultiplayerManager
             _peerHandlerThread.IsBackground = true;
             _peerHandlerThread.Start();
 
+            SendHello();
+
             return true;
         }
         catch (Exception e)
@@ -224,6 +226,8 @@ public class MultiplayerManager
         _peerHandlerThread = new Thread(() => HandlePeerConnection(client));
         _peerHandlerThread.IsBackground = true;
         _peerHandlerThread.Start();
+
+        SendHello();
     }
 
     private void HandlePeerConnection(TcpClient client)
@@ -302,7 +306,8 @@ public class MultiplayerManager
                 if (parts.Length >= 2)
                 {
                     string peerId = parts[1];
-                    HandleHello(peerId);
+                    this.peerId = peerId;
+                    Log.LogInfo($"Received hello from peer: {peerId}");
                 }
                 break;
 
@@ -313,7 +318,7 @@ public class MultiplayerManager
                     if (float.TryParse(parts[1], out float vx) && float.TryParse(parts[2], out float vy) &&
                         float.TryParse(parts[3], out float px) && float.TryParse(parts[4], out float py))
                     {
-                        KyoukoManager.Instance.UpdateInputDirection(new UnityEngine.Vector2(vx, vy), new UnityEngine.Vector2(px, py)); // todo: change to MystiaManager 
+                        KyoukoManager.Instance.UpdateInputDirection(new UnityEngine.Vector2(vx, vy), new UnityEngine.Vector2(px, py)); 
                     }
                 }
                 break;
@@ -330,6 +335,16 @@ public class MultiplayerManager
                 }
                 break;
 
+            case "enter":
+                // format: enter <mapLabel>
+                if (parts.Length >= 2)
+                {
+                    string mapLabel = parts[1];
+                    Log.LogInfo($"Peer entered map: {mapLabel}");
+                    KyoukoManager.Instance.UpdateMapLabel(mapLabel);
+                    SendMoveData(MystiaManager.Instance.GetInputDirection());
+                }
+                break;
             default:
                 Log.LogWarning($"Unknown peer command: {command}");
                 break;
@@ -356,6 +371,25 @@ public class MultiplayerManager
             Log.LogError($"Error sending to peer: {e.Message}");
             DisconnectPeer();
         }
+    }
+    
+    public void DisconnectPeer()
+    {
+        if (_peerConnection != null)
+        {
+            try
+            {
+                _peerConnection.Close();
+            }
+            catch { }
+            _peerConnection = null;
+        }
+
+        _isConnected = false;
+        _peerAddress = null;
+        _hassentFirstMove = false;
+
+        Log.LogInfo("Peer connection disconnected");
     }
 
     public void SendPing()
@@ -384,54 +418,37 @@ public class MultiplayerManager
         }
     }
 
-    public void HandleHello(string peerId)
-    {
-        this.peerId = peerId;
-        Log.LogInfo($"Received hello from peer: {peerId}");
-    }
-
     public void SendMoveData(UnityEngine.Vector2 inputDirection)
     {
-        if (_isConnected)
+        if (!_isConnected)
         {
-            // format: move <vx> <vy> <px> <py>
-            var position = MystiaManager.Instance.GetPosition();
-            if (position.HasValue)
-            {
-                string message = $"move {inputDirection.x} {inputDirection.y} {position.Value.x} {position.Value.y}\n";
-                SendToPeer(message);
-            }
+            return;
+        }
+        // format: move <vx> <vy> <px> <py>
+        var position = MystiaManager.Instance.GetPosition();
+        string message = $"move {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n";
+        SendToPeer(message);
+
+        // 第一次发送move数据包时，发送enter数据包
+        if (!_hassentFirstMove)
+        {
+            _hassentFirstMove = true;
+            SendMapLabel();
         }
     }
 
     public void SendSprintData(bool isSprinting)
     {
-        if (_isConnected)
+        if (!_isConnected)
         {
-            // format: sprint <false|true> <px> <py>
-            var position = MystiaManager.Instance.GetPosition();
-            string message = $"sprint {isSprinting} {position.Value.x} {position.Value.y}\n";
-            SendToPeer(message);
+            return;
         }
+        // format: sprint <false|true> <px> <py>
+        var position = MystiaManager.Instance.GetPosition();
+        string message = $"sprint {isSprinting} {position.x} {position.y}\n";
+        SendToPeer(message);
     }
 
-    public void DisconnectPeer()
-    {
-        if (_peerConnection != null)
-        {
-            try
-            {
-                _peerConnection.Close();
-            }
-            catch { }
-            _peerConnection = null;
-        }
-
-        _isConnected = false;
-        _peerAddress = null;
-
-        Log.LogInfo("Peer connection disconnected");
-    }
 
     public string GetStatus()
     {
@@ -447,5 +464,18 @@ public class MultiplayerManager
         }
 
         return status.ToString();
+    }
+
+    public void SendMapLabel()
+    {
+        if (!_isConnected)
+        {
+            return;
+        }
+
+        var mapLabel = MystiaManager.MapLabel;
+        // format: enter <mapLabel>
+        Log.LogInfo($"Sending map label to peer: {mapLabel}");
+        SendToPeer($"enter {mapLabel}\n");
     }
 }

@@ -3,6 +3,9 @@ using UnityEngine;
 using Common.CharacterUtility;
 using BepInEx.Logging;
 using DayScene.Input;
+using GameData.RunTime.Common;
+using DayScene;
+using System.Collections.Generic;
 
 namespace MetaMystia;
 
@@ -47,5 +50,57 @@ public class DayScenePlayerInputPatch
     public static void OnSprintCanceled_Prefix()
     {
         MultiplayerManager.Instance.SendSprintData(false);
+    }
+}
+
+[HarmonyPatch(typeof(RunTimeScheduler))]
+public class RunTimeSchedulerPatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    [HarmonyPatch(nameof(RunTimeScheduler.OnEnterDaySceneMap))]
+    [HarmonyPostfix]
+    public static void OnEnterDaySceneMap_Postfix()
+    {
+        MystiaManager.Instance.UpdateMapLabel();
+        MultiplayerManager.Instance.SendMapLabel();
+        KyoukoManager.Instance.UpdateVisibility();
+    }
+}
+
+[HarmonyPatch(typeof(DaySceneMap))]
+public class DaySceneMapPatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    [HarmonyPatch(nameof(DaySceneMap.SolveAndUpdateCharacterPositionInternal))]
+    [HarmonyPostfix]
+    public static void SolveAndUpdateCharacterPositionInternal_Postfix(DaySceneMap __instance, GameData.RunTime.DaySceneUtility.Collection.TrackedNPC npc, DayScene.Interactables.Collections.ConditionComponents.CharacterConditionComponent character, ref bool isNPCOnMap, bool changeRotation)
+    {
+        try
+        {
+            if (npc == null || character == null)
+            {
+                return;
+            }
+
+            string npcKey = npc.key;
+            if (string.IsNullOrEmpty(npcKey))
+            {
+                return;
+            }
+
+            var persistentNPCKeys = new HashSet<string> { "Kyouko" };
+
+            if (persistentNPCKeys.Contains(npcKey) && MultiplayerManager.Instance.IsConnected())
+            {
+                isNPCOnMap = true;
+                Log.LogMessage($"Force visible: {npcKey}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.LogError($"Error in SolveAndUpdateCharacterPositionInternal_Postfix: {e.Message}");
+        }
     }
 }
