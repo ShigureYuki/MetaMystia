@@ -38,26 +38,24 @@ public class Plugin : BasePlugin
         try {
             var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-            // Bootstrap patch
             var originalHandle = AccessTools.Method(typeof(CanvasScaler), "Handle");
             var postHandle = AccessTools.Method(typeof(BootstrapPatch), "Handle");
             harmony.Patch(originalHandle, postfix: new HarmonyMethod(postHandle));
 
-            // Character input patch for multiplayer
             harmony.PatchAll(typeof(CharacterInputPatch));
             Log.LogInfo("Applied CharacterInputPatch");
 
-            // DayScene player input patch for sprint logging
             harmony.PatchAll(typeof(DayScenePlayerInputPatch));
             Log.LogInfo("Applied DayScenePlayerInputPatch");
 
-            // RunTime scheduler patch for scene enter logging
             harmony.PatchAll(typeof(RunTimeSchedulerPatch));
             Log.LogInfo("Applied RunTimeSchedulerPatch");
 
-            // DayScene map patch for persistent NPCs
             harmony.PatchAll(typeof(DaySceneMapPatch));
             Log.LogInfo("Applied DaySceneMapPatch");
+
+            harmony.PatchAll(typeof(CharacterControllerUnitPatch));
+            Log.LogInfo("Applied CharacterControllerUnitPatch");
         }
         catch {
             Log.LogError("FAILED to Apply Hooks!");

@@ -43,12 +43,12 @@ public class MystiaManager
             var characters = UnityEngine.Object.FindObjectsOfType<DayScene.Input.DayScenePlayerInputGenerator>();
             if (characters == null || characters.Length == 0)
             {
-                Log.LogMessage("未找到 DayScenePlayerInputGenerator 实例");
+                Log.LogMessage("Cannot find DayScenePlayerInputGenerator instance");
                 return null;
             }
             if (characters.Length > 1)
             {
-                Log.LogWarning($"找到 {characters.Length} 个 DayScenePlayerInputGenerator 实例，使用第一个");
+                Log.LogWarning($"Found {characters.Length} DayScenePlayerInputGenerator instances, using the first one");
             }
 
             _cachedInputGenerator = characters[0];
@@ -97,19 +97,6 @@ public class MystiaManager
         return rb.position;
     }
 
-    public bool SetPosition(float x, float y)
-    {
-        var rb = GetRigidbody2D();
-        if (rb == null)
-        {
-            Log.LogWarning("Failed to get Rigidbody2D for Mystia");
-            return false;
-        }
-        rb.position = new Vector2(x, y);
-        Log.LogInfo($"Mystia position set to ({x}, {y})");
-        return true;
-    }
-
     public bool GetMoving()
     {
         var characterUnit = GetCharacterUnit();
@@ -119,35 +106,6 @@ public class MystiaManager
             return false;
         }
         return characterUnit.IsMoving;
-    }
-
-    public bool SetMoving(bool isMoving)
-    {
-        var characterUnit = GetCharacterUnit();
-        if (characterUnit == null)
-        {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Mystia");
-            return false;
-        }
-
-        characterUnit.IsMoving = isMoving;
-        Log.LogInfo($"Mystia moving status set to {isMoving}");
-        return true;
-    }
-
-
-    public bool SetMoveSpeed(float speed)
-    {
-        var characterUnit = GetCharacterUnit();
-        if (characterUnit == null)
-        {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Mystia");
-            return false;
-        }
-
-        characterUnit.MoveSpeedMultiplier = speed;
-        Log.LogInfo($"Mystia move speed set to {speed}");
-        return true;
     }
 
     public float GetMoveSpeed()
@@ -171,21 +129,7 @@ public class MystiaManager
         }
         return characterUnit.inputDirection;
     }
-
-    public bool SetInputDirection(float x, float y, float z = 0)
-    {
-        var characterUnit = GetCharacterUnit();
-        if (characterUnit == null)
-        {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Mystia");
-            return false;
-        }
-
-        characterUnit.inputDirection = new Vector3(x, y, z);
-        Log.LogInfo($"Mystia input direction set to ({x}, {y}, {z})");
-        return true;
-    }
-
+    
     public void UpdateMapLabel()
     {
         var sceneManager = DayScene.SceneManager.Instance;

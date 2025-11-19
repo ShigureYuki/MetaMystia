@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using Il2CppInterop.Runtime;
+using System.Linq;
 
 namespace MetaMystia;
 public class PluginManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class PluginManager : MonoBehaviour
     public static ManualLogSource Log => Plugin.Instance.Log;
 
     private bool isTextVisible = true;
+    private string label = "MetaMystia loaded";
     private NetConsole netConsole;
 
     public PluginManager(IntPtr ptr) : base(ptr)
@@ -32,36 +34,34 @@ public class PluginManager : MonoBehaviour
     {
         netConsole = new NetConsole();
         netConsole.Start();
-        Log.LogInfo("NetConsole initialized");
 
-        MultiplayerManager.Instance.Start();
-        Log.LogInfo("MultiplayerManager auto-started");
+        // MultiplayerManager.Instance.Start();
     }
 
     private void OnGUI()
     {
         if (isTextVisible)
         {
-            GUI.Label(new Rect(10, Screen.height - 50, 300, 50), "MetaMystia loaded");
+            var info = new System.Text.StringBuilder();
+            info.AppendLine(label);
+            info.AppendLine(MultiplayerManager.Instance.GetBriefStatus());
+            GUI.Label(new Rect(10, Screen.height - 50, 600, 50), info.ToString());
         }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightShift)) {
-            Log.LogMessage("hello world from MetaMystia");
-        }
-
         if (Input.GetKeyDown(KeyCode.Backslash)) {
             isTextVisible = !isTextVisible;
             Log.LogMessage("Toggled text visibility: " + isTextVisible);
+        }
+        if (Input.GetKeyDown(KeyCode.Slash) && Input.GetKey(KeyCode.LeftControl)) {
+            MultiplayerManager.Instance.ToggleRunning();
         }
     }
 
     private void FixedUpdate()
     {
-        // 在这里执行固定时间步长的逻辑
-        // 例如：KyoukoManager 的位置修正逻辑
         KyoukoManager.Instance.OnFixedUpdate();
     }
 
@@ -70,7 +70,6 @@ public class PluginManager : MonoBehaviour
         if (netConsole != null)
         {
             netConsole.Stop();
-            Log.LogInfo("NetConsole stopped");
         }
     }
 }

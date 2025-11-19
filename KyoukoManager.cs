@@ -45,6 +45,17 @@ public class KyoukoManager
 
     public void OnFixedUpdate()
     {
+
+        if (!IsKyoukoVisible)
+        {
+            return;
+        }
+
+        if (!MultiplayerManager.Instance.IsConnected())
+        {
+            return;
+        }
+
         // 在每个 FixedUpdate 执行位置修正
         
         // if (positionOffset.magnitude > 0.001f)
@@ -52,9 +63,10 @@ public class KyoukoManager
         //     return;
         // }
 
-        // 位移(px) = 速度(px/s) * 时间 * 速度倍率(5) * 奔跑倍率(1 or 1.5)
-        // 实际速度由对端同步而来
-        // 修正速度要保证在 一定时间内 完成位置修正
+        // 推测经验公式，数据可能有误：位移(px) = 速度(px/s) * 时间 * 速度倍率(目测5) * 奔跑倍率(1 or 1.5)
+        // 实际速度由对端 Kyouko 同步而来
+        // 修正速度要保证在「一定时间内」完成位置修正
+        // 这里使用较为取巧的方法，使用比较好实现的指数衰减模型（线性还要保存历史数据）
         currectVelocity = positionOffset / 0.5f / 5f;
         positionOffset -= currectVelocity * Time.fixedDeltaTime * 5f * GetCharacterUnit().sprintMultiplier;
 
@@ -66,12 +78,15 @@ public class KyoukoManager
         // 50 帧修正为 96% ^ 50 = 13%
         // 100 帧修正为 96% ^ 100 = 1.7%
 
+        // 由于数据可能有误差，实际计算结果会有不同，但是都是指数衰减的趋势，实测观感还好
+        // https://www.bilibili.com/video/av115571395922890?p=3
+
         // 每 Fixed Frame 都要根据 actualVelocity + currectVelocity 设置实际速度
         var velocity = actualVelocity + currectVelocity;
         if (velocity.magnitude < 0.01f)
         {
             SetMoving(false);
-            SetMoveSpeed(1.48f);
+            SetMoveSpeed(1.48f); // 原版 Kyouko 默认速度为 1, Mysita 默认为 1.48
             return;
         }
         SetMoving(true);
@@ -171,8 +186,11 @@ public class KyoukoManager
         {
             return false;
         }
-        characterUnit.IsMoving = isMoving;
-        // Log.LogMessage($"已设置 Kyouko 移动状态为 {isMoving}");
+        if (characterUnit.IsMoving != isMoving)
+        {
+            characterUnit.IsMoving = isMoving;
+            Log.LogMessage($"已设置 Kyouko 移动状态为 {isMoving}");   
+        }
         return true;
     }
 
@@ -204,6 +222,7 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         
         // characterUnit.UpdateInputVelocity(inputDirection);
+        // 速度设置已由 OnFixedUpdate 负责
         actualVelocity = inputDirection;
         characterUnit.IsMoving = inputDirection.magnitude > 0;
         Log.LogMessage($"Update input direction: ({inputDirection.x}, {inputDirection.y})");
@@ -218,7 +237,6 @@ public class KyoukoManager
             Log.LogWarning("Cannot set input direction: Kyouko is not visible");
             return;
         }
-
 
         var characterUnit = GetCharacterUnit();
         characterUnit.sprintMultiplier = isSprinting ? 1.5f : 1.0f;
@@ -237,15 +255,12 @@ public class KyoukoManager
     {
         var characterUnit = GetCharacterUnit();
 
-        characterUnit.MoveSpeedMultiplier = speed;
-        Log.LogInfo($"Kyouko move speed set to {speed}");
+        if (characterUnit.MoveSpeedMultiplier != speed)
+        {
+            characterUnit.MoveSpeedMultiplier = speed;
+            Log.LogInfo($"Kyouko move speed set to {speed}");    
+        }
         return true;
-    }
-
-    public Vector3 GetInputDirection()
-    {
-        var characterUnit = GetCharacterUnit();
-        return characterUnit?.inputDirection ?? Vector2.zero;
     }
 
     public bool SetInputDirection(float x, float y, float z = 0)

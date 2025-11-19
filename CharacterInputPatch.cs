@@ -14,6 +14,8 @@ public class CharacterInputPatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
 
+    // TODO: UpdateInputDirection 并非实际移动方法，需要额外考虑带有物理的 CharacterControllerUnit.GetTargetMovePosition 或考虑为 Kyouko 增加物理
+    // 问题复现: Mystia 顶着墙移动，对方眼中，Kyouko 穿墙飞走
     [HarmonyPatch(nameof(CharacterControllerInputGeneratorComponent.UpdateInputDirection))]
     [HarmonyPrefix]
     public static void UpdateInputDirection_Prefix(CharacterControllerInputGeneratorComponent __instance, Vector2 inputDirection)
@@ -101,6 +103,41 @@ public class DaySceneMapPatch
         catch (System.Exception e)
         {
             Log.LogError($"Error in SolveAndUpdateCharacterPositionInternal_Postfix: {e.Message}");
+        }
+    }
+}
+
+[HarmonyPatch(typeof(Common.CharacterUtility.CharacterControllerUnit))]
+public class CharacterControllerUnitPatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+    
+    // 供后续调试用
+    [HarmonyPatch("GetTargetMovePosition")]
+    [HarmonyPrefix]
+    public static void GetTargetMovePosition_Prefix(Vector3 inputDirection)
+    {
+        try
+        {
+            Log.LogDebug($"GetTargetMovePosition called with inputDirection: {inputDirection}");
+        }
+        catch (System.Exception e)
+        {
+            Log.LogError($"Error in GetTargetMovePosition_Prefix: {e.Message}");
+        }
+    }
+
+    [HarmonyPatch("GetTargetMovePosition")]
+    [HarmonyPostfix]
+    public static void GetTargetMovePosition_Postfix(Vector3 inputDirection, ref Vector2 __result)
+    {
+        try
+        {
+            Log.LogDebug($"GetTargetMovePosition returned: {__result}");
+        }
+        catch (System.Exception e)
+        {
+            Log.LogError($"Error in GetTargetMovePosition_Postfix: {e.Message}");
         }
     }
 }

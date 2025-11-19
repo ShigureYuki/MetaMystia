@@ -15,7 +15,6 @@ public class MultiplayerManager
     private static ManualLogSource Log => Plugin.Instance.Log;
 
     private const int TCP_PORT = 40815;
-
     private string playerId = System.Environment.MachineName;
     private string peerId = "<Unknown>";
     private bool _hassentFirstMove = false;
@@ -107,6 +106,20 @@ public class MultiplayerManager
     {
         Stop();
         Start();
+    }
+
+    public void ToggleRunning()
+    {
+        if (_isRunning)
+        {
+            Log.LogInfo("Stopping MultiplayerManager...");
+            Stop();
+        }
+        else
+        {
+            Log.LogInfo("Attempting to start MultiplayerManager...");
+            Start();
+        }
     }
 
     public string GetPlayerId()
@@ -318,7 +331,7 @@ public class MultiplayerManager
                     if (float.TryParse(parts[1], out float vx) && float.TryParse(parts[2], out float vy) &&
                         float.TryParse(parts[3], out float px) && float.TryParse(parts[4], out float py))
                     {
-                        KyoukoManager.Instance.UpdateInputDirection(new UnityEngine.Vector2(vx, vy), new UnityEngine.Vector2(px, py)); 
+                        KyoukoManager.Instance.UpdateInputDirection(new Vector2(vx, vy), new Vector2(px, py));
                     }
                 }
                 break;
@@ -330,7 +343,7 @@ public class MultiplayerManager
                     if (bool.TryParse(parts[1], out bool isSprinting) &&
                         float.TryParse(parts[2], out float px) && float.TryParse(parts[3], out float py))
                     {
-                        KyoukoManager.Instance.UpdateSprintState(isSprinting, new UnityEngine.Vector2(px, py)); // todo: change to MystiaManager 
+                        KyoukoManager.Instance.UpdateSprintState(isSprinting, new Vector2(px, py));
                     }
                 }
                 break;
@@ -340,9 +353,11 @@ public class MultiplayerManager
                 if (parts.Length >= 2)
                 {
                     string mapLabel = parts[1];
-                    Log.LogInfo($"Peer entered map: {mapLabel}");
+                    Log.LogInfo($"Kyouko entered map: {mapLabel}");
                     KyoukoManager.Instance.UpdateMapLabel(mapLabel);
                     SendMoveData(MystiaManager.Instance.GetInputDirection());
+                    // Kyouko 不可见时不会维护其位置，需要同步一次位置数据
+                    // Mystia 在发送 enter 包后也会发送一次 move 包
                 }
                 break;
             default:
@@ -429,7 +444,8 @@ public class MultiplayerManager
         string message = $"move {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n";
         SendToPeer(message);
 
-        // 第一次发送move数据包时，发送enter数据包
+        // 第一次发送 move 包时(一般是第一次进入游戏)，同时发送 enter 包
+        // TODO: 更精确的状态跟踪 - 玩家从游戏内退出到主菜单再返回游戏时也应重新发送 enter 包
         if (!_hassentFirstMove)
         {
             _hassentFirstMove = true;
@@ -453,17 +469,37 @@ public class MultiplayerManager
     public string GetStatus()
     {
         StringBuilder status = new StringBuilder();
-        status.AppendLine($"Player ID: {GetPlayerId()}");
+        status.AppendLine($"Mystia ID: {GetPlayerId()}");
         status.AppendLine($"Local Port: {TCP_PORT}");
         status.AppendLine($"Running: {(_isRunning ? "Yes" : "No")}");
         status.AppendLine($"Connected: {(_isConnected ? "Yes" : "No")}");
+        if (_isConnected)
+        {
+            status.AppendLine($"Kyouko ID: {peerId}");
+        }
         
         if (_isConnected)
         {
-            status.AppendLine($"Peer Address: {_peerAddress ?? "Unknown"}");
+            status.AppendLine($"Kyouko Address: {_peerAddress ?? "<Unknown>"}");
         }
 
         return status.ToString();
+    }
+
+    public string GetBriefStatus()
+    {
+        if (!_isRunning)
+        {
+            return "Multiplayer: Off";
+        }
+        if (_isConnected)
+        {
+            return $"Multiplayer: Connected to {peerId} ({_peerAddress})";
+        }
+        else
+        {
+            return "Multiplayer: On (Not connected)";
+        }
     }
 
     public void SendMapLabel()
