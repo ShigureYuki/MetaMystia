@@ -156,3 +156,18 @@ public class CharacterControllerUnitPatch
         }
     }
 }
+
+
+[HarmonyPatch(typeof(CharacterControllerUnit))]
+public class CharacterControllerUnitInitializePatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    [HarmonyPatch("Initialize")]
+    [HarmonyPrefix]
+    public static void Initialize_Prefix(ref bool shouldTurnOnCollider)
+    {
+        Log.LogWarning("[CharacterControllerUnitInitializePatch] Forcing shouldTurnOnCollider to true");
+        shouldTurnOnCollider = true;
+    }
+}

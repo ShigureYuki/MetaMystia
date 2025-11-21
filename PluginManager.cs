@@ -63,6 +63,7 @@ public class PluginManager : MonoBehaviour
     private void FixedUpdate()
     {
         KyoukoManager.Instance.OnFixedUpdate();
+        MystiaManager.Instance.OnFixedUpdate();
     }
 
     private void OnDestroy()

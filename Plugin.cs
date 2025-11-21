@@ -56,6 +56,9 @@ public class Plugin : BasePlugin
 
             harmony.PatchAll(typeof(CharacterControllerUnitPatch));
             Log.LogInfo("Applied CharacterControllerUnitPatch");
+
+            harmony.PatchAll(typeof(CharacterControllerUnitInitializePatch));
+            Log.LogInfo("Applied CharacterControllerUnitInitializePatch");
         }
         catch {
             Log.LogError("FAILED to Apply Hooks!");
