@@ -3,6 +3,8 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Common.CharacterUtility;
 using Common.UI;
+using System.Diagnostics;
+using System.ComponentModel.DataAnnotations;
 
 namespace MetaMystia
 {
@@ -25,7 +27,7 @@ namespace MetaMystia
         private string input = "";
         private Vector2 scrollPosition;
         private List<string> logs = new List<string>();
-        private const int MaxLogs = 128;
+        private const int MaxLogs = 1024;
         private bool focusTextField = false;
         private const string TextFieldName = "ConsoleInput";
         private bool justOpened = false;
@@ -226,6 +228,9 @@ namespace MetaMystia
                 case "mp":
                     MultiplayerCommand(args);
                     break;
+                case "call":
+                    CallCommand(args);
+                    break;
                 default:
                     Log("Unknown command: " + command);
                     break;
@@ -261,7 +266,7 @@ namespace MetaMystia
 
         private void GetCommand(string[] args)
         {
-            var availableFields = "currentactivemaplabel";
+            var availableFields = "currentactivemaplabel, allcharacters";
             if (args.Length == 0)
             {
                 Log("Usage: get <field>");
@@ -285,7 +290,7 @@ namespace MetaMystia
 
         private void SetCommand(string[] args)
         {
-            var availableFields = "<None>";
+            var availableFields = "KyoukoCollider";
             if (args.Length == 0)
             {
                 Log("Usage: set <field> <value...>");
@@ -294,8 +299,23 @@ namespace MetaMystia
             }
 
             string field = args[0].ToLower();
-            Log($"Unknown field: {field}");
-            Log($"Available fields: {availableFields}");
+            switch (field)
+            {
+                case "kyoukocollider":
+                    if (args.Length < 2)
+                    {
+                        Log("Usage: set kyoukocollider <on/off>");
+                        return;
+                    }
+                    bool enableCollider = args[1].ToLower() == "on";
+                    KyoukoManager.Instance.GetCharacterUnit().UpdateColliderStatus(enableCollider);
+                    Log($"Kyouko collider forced {(enableCollider ? "ON" : "OFF")}");
+                    break;
+                default:
+                    Log($"Unknown field: {field}");
+                    Log($"Available fields: {availableFields}");
+                    break;
+            }
         }
 
         private void MultiplayerCommand(string[] args)
@@ -376,6 +396,43 @@ namespace MetaMystia
                 default:
                     Log($"Unknown subcommand: {subcommand}");
                     Log("Available subcommands: start, stop, restart, status, ping, id, connect, disconnect");
+                    break;
+            }
+        }
+
+        private void CallCommand(string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Log("Usage: call <method> [args]");
+                Log("Available methods: getmapsnpcs");
+                return;
+            }
+
+            string method = args[0].ToLower();
+            switch (method)
+            {
+                case "getmapsnpcs":
+                    try
+                    {
+                    
+                        var mapLabel = args.Length >= 2 ? args[1] : MystiaManager.MapLabel;
+                        var npcs = GameData.RunTime.DaySceneUtility.RunTimeDayScene.GetMapNPCs(mapLabel);
+                        // public unsafe static Dictionary<string, TrackedNPC> GetMapNPCs(string mapLabel);
+                        foreach (var npc in npcs)
+                        {
+                            Log($"- {npc.Key}"); // TrackedNPC 有 ToString 方法，不过没啥东西
+                        }
+                        Log($"Total NPCs found: {npcs.Count}");
+                    }
+                    catch (System.Exception e)
+                    {
+                        Log($"Error calling getmapsnpcs: {e.Message}");
+                    }
+                    break;
+                default:
+                    Log($"Unknown method: {method}");
+                    Log("Available methods: <None>");
                     break;
             }
         }

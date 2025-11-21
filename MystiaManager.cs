@@ -13,6 +13,7 @@ public class MystiaManager
     private DayScene.Input.DayScenePlayerInputGenerator _cachedInputGenerator;
     private static ManualLogSource Log => Plugin.Instance.Log;
     public static string MapLabel { get; private set; }
+    public static bool NewMapInit { get; set; } = false;
 
     public static MystiaManager Instance
     {
@@ -139,5 +140,15 @@ public class MystiaManager
             return;
         }
         MapLabel = sceneManager.CurrentActiveMapLabel;
+        NewMapInit = true;
+    }
+
+    public void OnFixedUpdate()
+    {
+        if (NewMapInit)
+        {
+            Utils.InitAllCharacterColliders();
+            NewMapInit = false;
+        }
     }
 }
