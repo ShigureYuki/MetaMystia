@@ -1,0 +1,31 @@
+name: Safe Sync Fork
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # 每 6 小时
+  workflow_dispatch:       # 可手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/MetaMikuAI/MetaMystia.git
+
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Attempt Rebase
+        run: |
+          git checkout main
+          git rebase upstream/main || { echo "Rebase failed due to conflicts, please resolve manually."; exit 1; }
+
+      - name: Push rebased branch (only if no conflicts)
+        if: success()
+        run: git push origin main --force-with-lease
