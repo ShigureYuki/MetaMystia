@@ -18,7 +18,7 @@
 
 游戏内用 `/` 键打开游戏内控制台，按 `Enter` 提交命令，`ESC` 关闭控制台
 
-在 NetConsole 中，你可以使用一些命令，如联机(Multiplayer)相关
+在 InGameConsole 中，你可以使用一些命令，如联机(Multiplayer)相关
 
 ```
 mp start
