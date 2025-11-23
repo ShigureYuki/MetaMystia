@@ -13,6 +13,7 @@ public class MystiaManager
     private DayScene.Input.DayScenePlayerInputGenerator _cachedInputGenerator;
     private static ManualLogSource Log => Plugin.Instance.Log;
     public static string MapLabel { get; private set; }
+    public static int FixedUpdateCount { get; private set; } = 0;
 
     public static MystiaManager Instance
     {
@@ -143,6 +144,6 @@ public class MystiaManager
 
     public void OnFixedUpdate()
     {
-
+        FixedUpdateCount++;
     }
 }

@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using BepInEx.Logging;
+using Il2CppMono;
 using UnityEngine;
 
 namespace MetaMystia;
@@ -17,8 +18,6 @@ public class MultiplayerManager
     private const int TCP_PORT = 40815;
     private string playerId = System.Environment.MachineName;
     private string peerId = "<Unknown>";
-    private bool _hassentFirstMove = false;
-
     private TcpListener _tcpListener;
     private Thread _tcpListenerThread;
     private bool _isRunning = false;
@@ -211,6 +210,7 @@ public class MultiplayerManager
             _peerHandlerThread.Start();
 
             SendHello();
+            SendMapLabel();
 
             return true;
         }
@@ -241,6 +241,7 @@ public class MultiplayerManager
         _peerHandlerThread.Start();
 
         SendHello();
+        SendMapLabel();
     }
 
     private void HandlePeerConnection(TcpClient client)
@@ -331,7 +332,8 @@ public class MultiplayerManager
                     if (float.TryParse(parts[1], out float vx) && float.TryParse(parts[2], out float vy) &&
                         float.TryParse(parts[3], out float px) && float.TryParse(parts[4], out float py))
                     {
-                        KyoukoManager.Instance.UpdateInputDirection(new Vector2(vx, vy), new Vector2(px, py));
+                        PluginManager.Instance.RunOnMainThread(() => 
+                            KyoukoManager.Instance.UpdateInputDirection(new Vector2(vx, vy), new Vector2(px, py)));
                     }
                 }
                 break;
@@ -343,21 +345,37 @@ public class MultiplayerManager
                     if (bool.TryParse(parts[1], out bool isSprinting) &&
                         float.TryParse(parts[2], out float px) && float.TryParse(parts[3], out float py))
                     {
-                        KyoukoManager.Instance.UpdateSprintState(isSprinting, new Vector2(px, py));
+                        PluginManager.Instance.RunOnMainThread(() => 
+                            KyoukoManager.Instance.UpdateSprintState(isSprinting, new Vector2(px, py)));
                     }
                 }
                 break;
 
             case "enter":
-                // format: enter <mapLabel>
-                if (parts.Length >= 2)
+                // format: enter <mapLabel> <px> <py>
+                if (parts.Length >= 4)
                 {
                     string mapLabel = parts[1];
-                    Log.LogInfo($"Kyouko entered map: {mapLabel}");
-                    KyoukoManager.Instance.UpdateMapLabel(mapLabel);
-                    SendMoveData(MystiaManager.Instance.GetInputDirection());
+                    float px = float.Parse(parts[2]);
+                    float py = float.Parse(parts[3]);
+                    Log.LogInfo($"Kyouko entered map: {mapLabel} at position ({px}, {py})");
+                    PluginManager.Instance.RunOnMainThread(() =>
+                    {
+                        try
+                        {
+                            KyoukoManager.Instance.EnterMap(mapLabel, new Vector2(px, py));
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.LogError($"Error entering map {mapLabel}: {ex.Message}");
+                            SendToPeer($"Error entering map {mapLabel}: {ex.Message}\n");
+                        }
+                    });
+                    // KyoukoManager.Instance.UpdateMapLabel(mapLabel);
+                    // GameData.RunTime.DaySceneUtility.RunTimeDayScene.MoveCharacter("Kyouko", mapLabel, new Vector2(px, py), 0, out var oldNPCData);
+                    // SendMoveData(MystiaManager.Instance.GetInputDirection());
                     // Kyouko 不可见时不会维护其位置，需要同步一次位置数据
-                    // Mystia 在发送 enter 包后也会发送一次 move 包
+                    // Mystia 在发送 enter 包时同样需要包含位置数据
                 }
                 break;
             default:
@@ -402,7 +420,6 @@ public class MultiplayerManager
 
         _isConnected = false;
         _peerAddress = null;
-        _hassentFirstMove = false;
 
         Log.LogInfo("Peer connection disconnected");
     }
@@ -443,14 +460,6 @@ public class MultiplayerManager
         var position = MystiaManager.Instance.GetPosition();
         string message = $"move {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n";
         SendToPeer(message);
-
-        // 第一次发送 move 包时(一般是第一次进入游戏)，同时发送 enter 包
-        // TODO: 更精确的状态跟踪 - 玩家从游戏内退出到主菜单再返回游戏时也应重新发送 enter 包
-        if (!_hassentFirstMove)
-        {
-            _hassentFirstMove = true;
-            SendMapLabel();
-        }
     }
 
     public void SendSprintData(bool isSprinting)
@@ -510,8 +519,9 @@ public class MultiplayerManager
         }
 
         var mapLabel = MystiaManager.MapLabel;
-        // format: enter <mapLabel>
+        var position = MystiaManager.Instance.GetPosition();
+        // format: enter <mapLabel> <px> <py>
         Log.LogInfo($"Sending map label to peer: {mapLabel}");
-        SendToPeer($"enter {mapLabel}\n");
+        SendToPeer($"enter {mapLabel} {position.x} {position.y}\n");
     }
 }

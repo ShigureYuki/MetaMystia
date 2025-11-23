@@ -45,7 +45,6 @@ public class KyoukoManager
 
     public void OnFixedUpdate()
     {
-
         if (!IsKyoukoVisible)
         {
             return;
@@ -91,32 +90,17 @@ public class KyoukoManager
         }
         SetMoving(true);
         var characterUnit = GetCharacterUnit();
+        if (characterUnit == null)
+        {
+            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko in OnFixedUpdate");
+            return;
+        }
         characterUnit.UpdateInputVelocity(velocity);
     }
 
     public CharacterConditionComponent GetCharacterComponent()
     {
-        var characters = DayScene.DaySceneMap.allCharacters;
-        if (characters == null)
-        {
-            Log.LogMessage("allCharacters 为空");
-            return null;
-        }
-
-        if (!characters.ContainsKey(KYOUKO_ID))
-        {
-            Log.LogMessage($"未找到 ID 为 '{KYOUKO_ID}' 的角色");
-            return null;
-        }
-
-        var component = characters[KYOUKO_ID];
-        if (component == null)
-        {
-            Log.LogMessage($"角色 '{KYOUKO_ID}' 的 CharacterConditionComponent 为空");
-            return null;
-        }
-
-        return component;
+        return DayScene.DaySceneMap.TryGetCharacter("Kyouko");
     }
 
     public CharacterControllerUnit GetCharacterUnit()
@@ -130,7 +114,7 @@ public class KyoukoManager
         var characterUnit = component.Character;
         if (characterUnit == null)
         {
-            Log.LogMessage($"角色 '{KYOUKO_ID}' 的 CharacterControllerUnit 为空");
+            Log.LogWarning($"CharacterControllerUnit of '{KYOUKO_ID}' is null");
             return null;
         }
 
@@ -148,7 +132,7 @@ public class KyoukoManager
         var rb = characterUnit.rb2d;
         if (rb == null)
         {
-            Log.LogMessage($"角色 '{KYOUKO_ID}' 的 Rigidbody2D 为空");
+            Log.LogWarning($"Rigidbody2D of '{KYOUKO_ID}' is null");
             return null;
         }
 
@@ -169,7 +153,7 @@ public class KyoukoManager
             return false;
         }
         rb.position = new Vector2(x, y);
-        Log.LogMessage($"已设置 Kyouko 位置到 ({x}, {y})");
+        Log.LogInfo($"Kyouko position set to ({x}, {y})");
         return true;
     }
 
@@ -189,15 +173,9 @@ public class KyoukoManager
         if (characterUnit.IsMoving != isMoving)
         {
             characterUnit.IsMoving = isMoving;
-            Log.LogMessage($"已设置 Kyouko 移动状态为 {isMoving}");   
+            Log.LogInfo($"Kyouko moving state set to {isMoving}");
         }
         return true;
-    }
-
-    public GameObject GetGameObject()
-    {
-        var component = GetCharacterComponent();
-        return component?.gameObject;
     }
 
     public void UpdateInputDirection(Vector2 inputDirection, Vector2 syncPosition)
@@ -225,7 +203,7 @@ public class KyoukoManager
         // 速度设置已由 OnFixedUpdate 负责
         actualVelocity = inputDirection;
         characterUnit.IsMoving = inputDirection.magnitude > 0;
-        Log.LogMessage($"Update input direction: ({inputDirection.x}, {inputDirection.y})");
+        Log.LogInfo($"Update input direction: ({inputDirection.x}, {inputDirection.y})");
 
         positionOffset = syncPosition - characterUnit.rb2d.position;
     }
@@ -286,10 +264,7 @@ public class KyoukoManager
     public void UpdateMapLabel(string mapLabel)
     {
         MapLabel = mapLabel;
-        
-        Log.LogMessage($"Updated Kyouko map label to '{mapLabel}'");
-
-        UpdateVisibility();
+        Log.LogInfo($"Updated Kyouko map label to '{mapLabel}'");
     }
 
     public void UpdateVisibility()
@@ -300,7 +275,7 @@ public class KyoukoManager
             return;
         }
         IsKyoukoVisible = newVisibility;
-        Log.LogMessage($"Kyouko visibility updated to {IsKyoukoVisible} (Kyouko map: '{MapLabel}', Mystia map: '{MystiaManager.MapLabel}')");
+        Log.LogInfo($"Kyouko visibility updated to {IsKyoukoVisible} (Kyouko map: '{MapLabel}', Mystia map: '{MystiaManager.MapLabel}')");
 
         if (IsKyoukoVisible)
         {
@@ -314,5 +289,18 @@ public class KyoukoManager
         }
 
         rb.position = new Vector2(114514f, 114514f);
+    }
+
+    public void EnterMap(string mapLabel, Vector2 position)
+    {
+        Log.LogInfo($"[KyoukoManager.cs] EnterMap");
+        GameData.RunTime.DaySceneUtility.RunTimeDayScene.MoveCharacter("Kyouko", mapLabel, position, 0, out var oldNPCData);
+        UpdateMapLabel(mapLabel);
+        UpdateVisibility();
+        Log.LogInfo($"Kyouko entered map '{mapLabel}' at position ({position.x}, {position.y}) rotation 0");
+        if (mapLabel != MystiaManager.MapLabel)
+        {
+            return;
+        }
     }
 }

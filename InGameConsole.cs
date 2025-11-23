@@ -281,6 +281,9 @@ namespace MetaMystia
                 case "currentactivemaplabel":
                     Log($"Current Active Map Label: {MystiaManager.MapLabel}");
                     break;
+                case "enabledebugconsole":
+                    Log($"Debug Console Enabled: {SplashScene.SceneManager.EnableDebugCosole}");
+                    break;
                 default:
                     Log($"Unknown field: {field}");
                     Log($"Available fields: {availableFields}");
@@ -311,6 +314,7 @@ namespace MetaMystia
                     KyoukoManager.Instance.GetCharacterUnit().UpdateColliderStatus(enableCollider);
                     Log($"Kyouko collider forced {(enableCollider ? "ON" : "OFF")}");
                     break;
+
                 default:
                     Log($"Unknown field: {field}");
                     Log($"Available fields: {availableFields}");
@@ -402,10 +406,11 @@ namespace MetaMystia
 
         private void CallCommand(string[] args)
         {
+            var availableFields = "getmapsnpcs, movecharacter";
             if (args.Length == 0)
             {
                 Log("Usage: call <method> [args]");
-                Log("Available methods: getmapsnpcs");
+                Log($"Available methods: {availableFields}");
                 return;
             }
 
@@ -430,9 +435,30 @@ namespace MetaMystia
                         Log($"Error calling getmapsnpcs: {e.Message}");
                     }
                     break;
+                case "movecharacter":
+                    if (args.Length < 6)
+                    {
+                        Log("Usage: call movecharacter <characterKey> <mapLabel> <x> <y> <rot>");
+                        break;
+                    }
+                    try
+                    {
+                        string characterKey = args[1];
+                        string mapLabel = args[2];
+                        float x = float.Parse(args[3]);
+                        float y = float.Parse(args[4]);
+                        int rot = int.Parse(args[5]);
+                        GameData.RunTime.DaySceneUtility.RunTimeDayScene.MoveCharacter(characterKey, mapLabel, new Vector2(x, y), rot, out var oldNPCData);
+                        Log($"Moved character '{characterKey}' to position ({x}, {y}) rotation {rot} on map '{mapLabel}'.");
+                    }
+                    catch (System.Exception e)
+                    {
+                        Log($"Error calling movecharacter: {e.Message}");
+                    }
+                    break;
                 default:
                     Log($"Unknown method: {method}");
-                    Log("Available methods: <None>");
+                    Log($"Available methods: {availableFields}");
                     break;
             }
         }

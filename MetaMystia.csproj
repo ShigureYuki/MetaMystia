@@ -22,6 +22,12 @@
     <EmbeddedResource Remove="Assembly-CSharp\**" />
     <None Remove="Assembly-CSharp\**" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="DebugImpl\**" />
+    <EmbeddedResource Remove="DebugImpl\**" />
+    <None Remove="DebugImpl\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
@@ -75,6 +81,10 @@
     </Reference>
     <Reference Include="DEYU.Singletons">
       <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.Singletons.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Omt.GamePlatformAPI">
+      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Omt.GamePlatformAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
