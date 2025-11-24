@@ -21,6 +21,10 @@ public class KyoukoManager
     private static Vector2 actualVelocity;
     private static Vector2 positionOffset;
     private static Vector2 currectVelocity;
+
+    public static bool isReady = false;
+
+
     public static KyoukoManager Instance
     {
         get

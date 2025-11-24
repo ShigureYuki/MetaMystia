@@ -182,3 +182,64 @@ public class CharacterControllerUnitInitializePatch
         } 
     }
 }
+
+[HarmonyPatch(typeof(DayScene.SceneManager))]
+public class DaySceneSceneManagerPatch
+{
+    private static ManualLogSource Log => Plugin.Instance.Log;
+
+    [HarmonyPatch(nameof(DayScene.SceneManager.OnDayOver))]
+    [HarmonyPrefix]
+    public static bool OnDayOver_Prefix()
+    {
+        /*
+            [MetaMiku 注]
+            状态机: 
+                由 01 表示 Mystia 未准备好，而 Kyouko 已准备好
+                
+                                  00
+                               ↙    ↘
+                             10        01
+                               ↘    ↙
+                                  11
+    
+                00->10, 01->11 为游戏原生触发
+                    00->10: 需要跳过 OnDayOver 而显示「准备未完成」对话框
+                    01->11: 需要先跳过 OnDayOver 后在显示「准备完成」对话框的回调中执行 OnDayOver
+                00->01, 10->11 为 MultiplayerManager 触发
+                    00->01: 正常更新状态，不触发 OnDayOver_Prefix 也不执行 OnDayOver
+                    10->11: 需要先显示「准备完成」对话框再在其回调中执行 OnDayOver
+        */
+
+
+
+        Log.LogInfo("Day over detected");
+
+        // 00 -> 10
+        if (!MystiaManager.isReady && !KyoukoManager.isReady)
+        {
+            MultiplayerManager.Instance.SendReady();
+            Utils.ShowReadyDialog(false, () => MystiaManager.isReady = true);
+            return false;
+        }
+
+        // 01 -> 11
+        if (!MystiaManager.isReady && KyoukoManager.isReady) 
+        {
+            MultiplayerManager.Instance.SendReady();
+            Utils.ShowReadyDialog(true, () => 
+            {
+                MystiaManager.isReady = true;
+                DayScene.SceneManager.Instance.OnDayOver();
+            });
+            return false;
+        }
+
+        // 00 -> 01: Nope
+
+        // 10 -> 11: Nope
+
+        // 11: 回调中直接执行 OnDayOver
+        return true;
+    }
+}

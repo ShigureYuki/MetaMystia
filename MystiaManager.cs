@@ -15,6 +15,8 @@ public class MystiaManager
     public static string MapLabel { get; private set; }
     public static int FixedUpdateCount { get; private set; } = 0;
 
+    public static bool isReady = false;
+
     public static MystiaManager Instance
     {
         get

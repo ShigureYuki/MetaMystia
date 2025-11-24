@@ -23,7 +23,7 @@ public static class Utils
     private static DialogPackage KMExampleDialogPackage = null;
 
 // 一个准备好了 一个没准备好的
-    public static void test(bool isReady) 
+    public static void ShowReadyDialog(bool isReady, System.Action onFinishCallback = null) 
     {
         if (KMExampleDialogPackage == null)
         {
@@ -49,7 +49,7 @@ public static class Utils
             
             UniversalGameManager.OpenDialogMenu(
                 originalDialogPackage,
-                onFinishCallback: null,
+                onFinishCallback: onFinishCallback,
                 overrideReplaceTextCallback: overrideReplaceTextCallback,
                 previousPanelVisualMode: 0
             );

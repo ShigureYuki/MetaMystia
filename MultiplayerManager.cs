@@ -378,6 +378,21 @@ public class MultiplayerManager
                     // Mystia 在发送 enter 包时同样需要包含位置数据
                 }
                 break;
+            case "ready":
+                KyoukoManager.isReady = true;
+                if (MystiaManager.isReady) // 10->11: 需要先显示「准备完成」对话框再在其回调中执行 OnDayOver
+                {
+                    PluginManager.Instance.RunOnMainThread(() =>
+                    {
+                        Utils.ShowReadyDialog(true, () => 
+                        {
+                            DayScene.SceneManager.Instance.OnDayOver();
+                        });
+                    });
+                }
+                // else: 00->01: Nope
+                Log.LogInfo("Kyouko is ready");
+                break;
             default:
                 Log.LogWarning($"Unknown peer command: {command}");
                 break;
@@ -523,5 +538,16 @@ public class MultiplayerManager
         // format: enter <mapLabel> <px> <py>
         Log.LogInfo($"Sending map label to peer: {mapLabel}");
         SendToPeer($"enter {mapLabel} {position.x} {position.y}\n");
+    }
+
+    public void SendReady()
+    {
+        if (!_isConnected)
+        {
+            return;
+        }
+
+        Log.LogInfo("Sending ready status to peer");
+        SendToPeer("ready\n");
     }
 }
