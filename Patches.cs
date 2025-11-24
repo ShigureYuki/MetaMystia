@@ -161,6 +161,24 @@ public class CharacterControllerUnitPatch
     }
 }
 
+[HarmonyPatch(typeof(SplashScene.SceneManager))]
+public class SceneManagerPatch
+{
+    [HarmonyPatch("EnableDebugCosole", MethodType.Getter)]
+    [HarmonyPostfix]
+    public static void EnableDebugCosole_Postfix(ref bool __result)
+    {
+        __result = true;
+    }
+
+    [HarmonyPatch("CurrentConsoleMode", MethodType.Getter)]
+    [HarmonyPostfix]
+    public static void CurrentConsoleMode_Postfix(ref GamePlatform.Systems.ConsoleMode __result)
+    {
+        __result = GamePlatform.Systems.ConsoleMode.Full;
+    }
+}
+
 
 [HarmonyPatch(typeof(CharacterControllerUnit))]
 public class CharacterControllerUnitInitializePatch

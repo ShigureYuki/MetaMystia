@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,11 +9,10 @@
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
-      https://nuget.bepinex.dev/v3/index.json;
-      https://nuget.samboy.dev/v3/index.json
+      https://nuget.bepinex.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>MetaMystia</RootNamespace>
-    <OutputPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\plugins</OutputPath>
+    <OutputPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
@@ -36,67 +35,63 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp-firstpass.dll</HintPath>
+    <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx.Core">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Core.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx.Preloader.Core">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Preloader.Core.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Preloader.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx.Unity.Common">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx.Unity.IL2CPP">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Il2Cppmscorlib">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.Physics2DModule">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.Physics2DModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.Physics2DModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="DEYU.Singletons">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.Singletons.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.Singletons.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Omt.GamePlatformAPI">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Omt.GamePlatformAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Omt.GamePlatformAPI">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdaptiveUISystem.dll</HintPath>
-      <Private>False</Private>
+        <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Omt.GamePlatformAPI.dll</HintPath>
+        <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Addressables">
-      <HintPath>..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Addressables.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Addressables.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

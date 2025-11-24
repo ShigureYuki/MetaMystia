@@ -207,13 +207,7 @@ public class MultiplayerManager
             _isConnected = true;
             _peerConnection = client;
 
-            _peerHandlerThread = new Thread(() => HandlePeerConnection(client));
-            _peerHandlerThread.IsBackground = true;
-            _peerHandlerThread.Start();
-
-            SendHello();
-            SendSync();
-
+            OnConnected(client);
             return true;
         }
         catch (Exception e)
@@ -238,12 +232,7 @@ public class MultiplayerManager
 
         Log.LogInfo($"{LOG_TAG} Connection from {_peerAddress} accepted");
 
-        _peerHandlerThread = new Thread(() => HandlePeerConnection(client));
-        _peerHandlerThread.IsBackground = true;
-        _peerHandlerThread.Start();
-
-        SendHello();
-        SendSync();
+        OnConnected(client);
     }
 
     private void HandlePeerConnection(TcpClient client)
@@ -295,6 +284,17 @@ public class MultiplayerManager
             Log.LogInfo($"{LOG_TAG} Peer connection disconnected");
             DisconnectPeer();
         }
+    }
+
+    public void OnConnected(TcpClient client)
+    {
+        _peerHandlerThread = new Thread(() => HandlePeerConnection(client));
+        _peerHandlerThread.IsBackground = true;
+        _peerHandlerThread.Start();
+
+        SendHello();
+        SendMapLabel();
+        SendSync();
     }
 
     private void ProcessPeerMessage(string message, TcpClient client)

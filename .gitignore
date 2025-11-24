@@ -1,4 +1,6 @@
 /.vs/
 /bin
 /obj
+/Assembly-CSharp/.vs/
+/Assembly-CSharp/obj/
 /DebugImpl/

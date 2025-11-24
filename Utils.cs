@@ -13,6 +13,7 @@ using Il2CppSystem.Collections.Generic;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppSystem.Runtime.InteropServices;
+using System.Reflection;
 
 namespace MetaMystia;
 
@@ -115,3 +116,51 @@ public static class Utils
         }
     }
 };
+
+
+public static class DiagnosticUtils
+{
+    private static ManualLogSource Debug => Plugin.Instance.Log;
+    public static void LogMethodInfo(MethodBase method)
+    {
+        Debug.LogMessage($"[DIAG] Method: {method.DeclaringType?.Name}.{method.Name}");
+        Debug.LogMessage($"[DIAG] FullName: {method}");
+        Debug.LogMessage($"[DIAG] IsStatic: {method.IsStatic}");
+    }
+
+    public static void LogAllProperties(object obj)
+    {
+        if (obj == null)
+        {
+            Debug.LogMessage("[DIAG] Object is null");
+            return;
+        }
+
+        var type = obj.GetType();
+        Debug.LogMessage($"[DIAG] =========== Inspecting type: {type.FullName}");
+
+        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            try
+            {
+                var value = prop.GetValue(obj);
+                Debug.LogMessage($"[DIAG] Property: {prop.Name}, Type: {prop.PropertyType}, Value: {value}");
+
+                // 检查集合属性
+                if (value is System.Collections.IEnumerable enumerable &&
+                    !(value is string))
+                {
+                    var isReadOnly = value.GetType().GetProperty("IsReadOnly")?.GetValue(value);
+                    Debug.LogMessage($"[DIAG]   -> IsReadOnly: {isReadOnly}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[DIAG] Error reading {prop.Name}: {ex.Message}");
+            }
+        }
+        Debug.LogMessage($"[DIAG] =========== Inspecting done");
+
+    }
+
+}

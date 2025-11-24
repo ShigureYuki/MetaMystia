@@ -3,13 +3,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{16149AB8-FD0E-441C-BF44-4A826D19681F}</ProjectGuid>
+    <ProjectGuid>{B4CD19DA-EE08-5225-FB19-1D0DFA4113DD}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Assembly-CSharp</RootNamespace>
     <AssemblyName>Assembly-CSharp</AssemblyName>
-    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
-    <TargetFrameworkIdentifier>.NETCoreApp</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <_TargetFrameworkVersionWithoutV>4.7.1</_TargetFrameworkVersionWithoutV>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -33,104 +34,106 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Cinemachine">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Cinemachine.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Cinemachine.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.AdaptiveUISystem">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdaptiveUISystem.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdaptiveUISystem.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.AdpUISystem.UGUIExtensions">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdpUISystem.UGUIExtensions.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdpUISystem.UGUIExtensions.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.AdpUISystemUniTaskExtension">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdpUISystemUniTaskExtension.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AdpUISystemUniTaskExtension.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.AssetHandleUtility">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AssetHandleUtility.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.AssetHandleUtility.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.ShapedLayoutGroup">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.ShapedLayoutGroup.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.ShapedLayoutGroup.dll</HintPath>
     </Reference>
     <Reference Include="DEYU.Singletons">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.Singletons.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\DEYU.Singletons.dll</HintPath>
     </Reference>
-    <Reference Include="Il2CppInterop.Common" />
-    <Reference Include="Il2CppInterop.Runtime" />
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\Il2CppInterop.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Il2Cppmscorlib">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppSystem">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2CppSystem.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2CppSystem.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppSystem.Core">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2CppSystem.Core.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Il2CppSystem.Core.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Newtonsoft.Json.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Omt.GamePlatformAPI">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Omt.GamePlatformAPI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Omt.GamePlatformAPI.dll</HintPath>
     </Reference>
-    <Reference Include="System.Private.CoreLib" />
-    <Reference Include="System.Runtime" />
     <Reference Include="UniTask">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UniTask.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UniTask.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Extras">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.2D.Tilemap.Extras.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.2D.Tilemap.Extras.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Addressables">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Addressables.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Addressables.dll</HintPath>
     </Reference>
     <Reference Include="Unity.InputSystem">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.InputSystem.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.InputSystem.dll</HintPath>
     </Reference>
     <Reference Include="Unity.ResourceManager">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.ResourceManager.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.ResourceManager.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Timeline.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.DirectorModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.DirectorModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.DirectorModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.GridModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.GridModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.GridModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Physics2DModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.Physics2DModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.Physics2DModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TilemapModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.TilemapModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.TilemapModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.UIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.VideoModule">
-      <HintPath>..\..\..\Steam\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.VideoModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Touhou Mystia Izakaya\BepInEx\interop\UnityEngine.VideoModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
