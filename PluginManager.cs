@@ -83,7 +83,7 @@ public class PluginManager : MonoBehaviour
 
     public void RunOnMainThread(Action action)
     {
-        Log.LogInfo($"{LOG_TAG} Enqueue action to run on main thread");
+        Log.LogDebug($"{LOG_TAG} Enqueue action to run on main thread");
         _mainThreadQueue.Enqueue(action);
     }
 

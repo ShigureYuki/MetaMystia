@@ -59,7 +59,7 @@ public class MultiplayerManager
             return;
         }
 
-        _isRunning = true;
+        IsRunning = true;
         Log.LogInfo($"{LOG_TAG} Starting MultiplayerManager");
         peerId = "<Unknown>";
 
@@ -72,7 +72,7 @@ public class MultiplayerManager
             return;
 
         Log.LogInfo($"{LOG_TAG} Stopping MultiplayerManager");
-        _isRunning = false;
+        IsRunning = false;
 
         DisconnectPeer();
 
@@ -112,8 +112,8 @@ public class MultiplayerManager
 
     public void SetPlayerId(string newId)
     {
-        playerId = newId;
-        Log.LogInfo($"{LOG_TAG} Player ID set to: {playerId}");
+        PlayerId = newId;
+        Log.LogInfo($"{LOG_TAG} Player ID set to: {PlayerId}");
     }
 
     private void StartTcpListener()
@@ -212,7 +212,7 @@ public class MultiplayerManager
         _peerConnection = client;
         PeerAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
 
-        Log.LogInfo($"{LOG_TAG} Connection from {_peerAddress} accepted");
+        Log.LogInfo($"{LOG_TAG} Connection from {PeerAddress} accepted");
 
         OnConnected(client);
     }
@@ -275,7 +275,6 @@ public class MultiplayerManager
         _peerHandlerThread.Start();
 
         SendHello();
-        SendMapLabel();
         SendSync();
     }
 
@@ -324,19 +323,6 @@ public class MultiplayerManager
                 {
                     KyoukoManager.Instance.SyncFromPeer(mapLabel, isSprinting, new Vector2(vx, vy), new Vector2(px, py));
                 });
-                break;
-            // deprecated
-            case "pos":
-                // format: pos <mapLable> <px> <py>
-                 if (parts.Length >= 4)
-                {
-                    string mapLabel = parts[1];
-                    if (float.TryParse(parts[2], out float px) && float.TryParse(parts[3], out float py))
-                    {
-                        PluginManager.Instance.RunOnMainThread(() => 
-                            KyoukoManager.Instance.MoveTo(mapLabel, px, py));
-                    }
-                }
                 break;
             case "ready":
                 KyoukoManager.isReady = true;
@@ -417,7 +403,7 @@ public class MultiplayerManager
         if (IsConnected)
         {
             Log.LogInfo($"{LOG_TAG} Sending hello to peer");
-            SendToPeer($"hello {GetPlayerId()}\n");
+            SendToPeer($"hello {PlayerId}\n");
         }
         else
         {
@@ -434,18 +420,6 @@ public class MultiplayerManager
         // format: move <vx> <vy> <px> <py>
         var position = MystiaManager.Instance.GetPosition();
         string message = $"move {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n";
-        SendToPeer(message);
-    }
-
-    public void SendPos(string label, float x, float y)
-    {
-        if (!IsConnected)
-        {
-            return;
-        }
-        // format: pos <label> <px> <py>
-        var position = MystiaManager.Instance.GetPosition();
-        string message = $"pos {MystiaManager.MapLabel} {position.x} {position.y}\n";
         SendToPeer(message);
     }
 

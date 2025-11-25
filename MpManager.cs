@@ -138,7 +138,6 @@ public class MpManager
         Instance.IsHost = IsHost;
         SendHello();
         SendPing();
-        SendMapLabel();
     }
 
     public void OnDisconnected()
@@ -241,48 +240,21 @@ public class MpManager
         }
     }
 
-    public void SendMoveData(UnityEngine.Vector2 inputDirection)
-    {
-        if (IsConnected)
-        {
-            var position = MystiaManager.Instance.GetPosition();
-            NetPacket packet = new() { };
-            packet.Actions.Add(new MoveAction
-            {
-                Vx = inputDirection.x,
-                Vy = inputDirection.y,
-                Px = position.x,
-                Py = position.y
-            });
-            SendToPeer(packet);
-        }
-    }
-
-    public void SendSprintData(bool isSprinting)
-    {
-        if (IsConnected)
-        {
-            var position = MystiaManager.Instance.GetPosition();
-            NetPacket packet = new() { };
-            packet.Actions.Add(new SprintAction
-            {
-                IsSprinting = isSprinting,
-                Px = position.x,
-                Py = position.y
-            });
-            SendToPeer(packet);
-        }
-    }
-
-    public void SendMapLabel()
+    public void SendSync()
     {
         if (IsConnected)
         {
             var mapLabel = MystiaManager.MapLabel;
             var position = MystiaManager.Instance.GetPosition();
+            var isSprinting = MystiaManager.IsSprinting;
+            var inputDirection = MystiaManager.InputDirection;
+
             NetPacket packet = new() { };
-            packet.Actions.Add(new EnterMapAction
+            packet.Actions.Add(new SyncAction
             {
+                IsSprinting = isSprinting,
+                Vx = inputDirection.x,
+                Vy = inputDirection.y,
                 MapLabel = mapLabel,
                 Px = position.x,
                 Py = position.y

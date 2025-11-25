@@ -321,9 +321,7 @@ public enum ActionType : ushort
     PING,
     PONG,
     HELLO,
-    MOVE,
-    SPRINT,
-    ENTER_MAP,
+    SYNC,
     READY
 }
 
@@ -331,9 +329,7 @@ public enum ActionType : ushort
 [MemoryPackUnion((ushort)ActionType.PING, typeof(PingAction))]
 [MemoryPackUnion((ushort)ActionType.PONG, typeof(PongAction))]
 [MemoryPackUnion((ushort)ActionType.HELLO, typeof(HelloAction))]
-[MemoryPackUnion((ushort)ActionType.MOVE, typeof(MoveAction))]
-[MemoryPackUnion((ushort)ActionType.SPRINT, typeof(SprintAction))]
-[MemoryPackUnion((ushort)ActionType.ENTER_MAP, typeof(EnterMapAction))]
+[MemoryPackUnion((ushort)ActionType.SYNC, typeof(SyncAction))]
 [MemoryPackUnion((ushort)ActionType.READY, typeof(ReadyAction))]
 public abstract partial class NetAction
 {
@@ -377,56 +373,23 @@ public partial class HelloAction : NetAction
 
 
 [MemoryPackable]
-public partial class MoveAction : NetAction
+public partial class SyncAction : NetAction
 {
-    public override ActionType Type => ActionType.MOVE;
+    public override ActionType Type => ActionType.SYNC;
     public float Vx {get; set; }
     public float Vy {get; set; }
     public float Px {get; set; }
     public float Py {get; set; }
-    public override void OnReceived()
-    {
-        PluginManager.Instance.RunOnMainThread(() => 
-            KyoukoManager.Instance.UpdateInputDirection(new UnityEngine.Vector2(Vx, Vy), new UnityEngine.Vector2(Px, Py)));
-    }
-}
-
-[MemoryPackable]
-public partial class SprintAction : NetAction
-{
-    public override ActionType Type => ActionType.SPRINT;
-    public bool IsSprinting {get; set; }
-    public float Px {get; set; }
-    public float Py {get; set; }
-    public override void OnReceived()
-    {
-        PluginManager.Instance.RunOnMainThread(() => 
-            KyoukoManager.Instance.UpdateSprintState(IsSprinting, new UnityEngine.Vector2(Px, Py)));
-    }
-}
-
-[MemoryPackable]
-public partial class EnterMapAction : NetAction
-{
-    public override ActionType Type => ActionType.ENTER_MAP;
+    public bool IsSprinting{get; set;}
     public string MapLabel {get; set; }
-    public float Px {get; set; }
-    public float Py {get; set; }
     public override void OnReceived()
     {
         PluginManager.Instance.RunOnMainThread(() =>
-            {
-                try
-                {
-                    KyoukoManager.Instance.EnterMap(MapLabel, new UnityEngine.Vector2(Px, Py));
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Instance.Log.LogError($"Error entering map {MapLabel}: {ex.Message}");
-                }
-            });
+            KyoukoManager.Instance.SyncFromPeer(MapLabel, IsSprinting,
+                new UnityEngine.Vector2(Vx, Vy), new UnityEngine.Vector2(Px, Py)));
     }
 }
+
 
 [MemoryPackable]
 public partial class ReadyAction : NetAction

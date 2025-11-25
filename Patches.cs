@@ -53,7 +53,6 @@ public class DayScenePlayerInputPatch
         if (PluginManager.Console != null && PluginManager.Console.IsOpen) return false;
         MystiaManager.IsSprinting = true;
         MpManager.Instance.SendSync();
-        MpManager.Instance.SendSprintData(true);
         return true;
     }
 
@@ -63,7 +62,6 @@ public class DayScenePlayerInputPatch
     {
         MystiaManager.IsSprinting = false;
         MpManager.Instance.SendSync();
-        MpManager.Instance.SendSprintData(false);
     }
 
     [HarmonyPatch(nameof(DayScenePlayerInputGenerator.TryInteract))]
@@ -85,7 +83,6 @@ public class RunTimeSchedulerPatch
     public static void OnEnterDaySceneMap_Postfix(string mapLabel)
     {
         MystiaManager.MapLabel = mapLabel;
-        MpManager.Instance.SendMapLabel();
         MpManager.Instance.SendSync();
     }
 }
