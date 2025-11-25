@@ -12,10 +12,12 @@ public class MystiaManager
     
     private DayScene.Input.DayScenePlayerInputGenerator _cachedInputGenerator;
     private static ManualLogSource Log => Plugin.Instance.Log;
-    public static string MapLabel { get; private set; }
-    public static int FixedUpdateCount { get; private set; } = 0;
+    public static string MapLabel { get; set; } = "";
+    public static bool IsSprinting { get; set; } = false;
+    public static Vector2 InputDirection { get; set; } = Vector2.zero;
 
     public static bool isReady = false;
+    private static readonly string LOG_TAG = "[MystiaManager.cs]";
 
     public static MystiaManager Instance
     {
@@ -46,12 +48,12 @@ public class MystiaManager
             var characters = UnityEngine.Object.FindObjectsOfType<DayScene.Input.DayScenePlayerInputGenerator>();
             if (characters == null || characters.Length == 0)
             {
-                Log.LogMessage("Cannot find DayScenePlayerInputGenerator instance");
+                Log.LogWarning($"{LOG_TAG} Cannot find DayScenePlayerInputGenerator instance");
                 return null;
             }
             if (characters.Length > 1)
             {
-                Log.LogWarning($"Found {characters.Length} DayScenePlayerInputGenerator instances, using the first one");
+                Log.LogWarning($"{LOG_TAG} Found {characters.Length} DayScenePlayerInputGenerator instances, using the first one");
             }
 
             _cachedInputGenerator = characters[0];
@@ -65,7 +67,7 @@ public class MystiaManager
         var inputGenerator = GetInputGenerator(forceRefresh);
         if (inputGenerator == null)
         {
-            Log.LogWarning("GetInputGenerator returned null");
+            Log.LogWarning($"{LOG_TAG} GetInputGenerator returned null");
             return null;
         }
         var characterUnit = inputGenerator.Character;
@@ -77,7 +79,7 @@ public class MystiaManager
         var characterUnit = GetCharacterUnit(forceRefresh);
         if (characterUnit == null)
         {
-            Log.LogWarning("GetCharacterUnit returned null");
+            Log.LogWarning($"{LOG_TAG} GetCharacterUnit returned null");
             return null;
         }
         var rb = characterUnit.rb2d;
@@ -94,7 +96,7 @@ public class MystiaManager
         var rb = GetRigidbody2D();
         if (rb == null)
         {
-            Log.LogWarning("GetRigidbody2D returned null");
+            Log.LogWarning($"{LOG_TAG} GetRigidbody2D returned null");
             return Vector2.zero;
         }
         return rb.position;
@@ -105,7 +107,7 @@ public class MystiaManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("GetCharacterUnit returned null in GetMoving");
+            Log.LogWarning($"{LOG_TAG} GetCharacterUnit returned null in GetMoving");
             return false;
         }
         return characterUnit.IsMoving;
@@ -116,7 +118,7 @@ public class MystiaManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("GetCharacterUnit returned null in GetMoveSpeed");
+            Log.LogWarning($"{LOG_TAG} GetCharacterUnit returned null in GetMoveSpeed");
             return 1.0f;
         }
         return characterUnit.MoveSpeedMultiplier;
@@ -127,7 +129,7 @@ public class MystiaManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("GetCharacterUnit returned null in GetInputDirection");
+            Log.LogWarning($"{LOG_TAG} GetCharacterUnit returned null in GetInputDirection");
             return Vector3.zero;
         }
         return characterUnit.inputDirection;
@@ -138,7 +140,7 @@ public class MystiaManager
         var sceneManager = DayScene.SceneManager.Instance;
         if (sceneManager == null)
         {
-            Log.LogError("Cannot find DayScene.SceneManager instance");
+            Log.LogError($"{LOG_TAG} Cannot find DayScene.SceneManager instance");
             return;
         }
         MapLabel = sceneManager.CurrentActiveMapLabel;
@@ -146,6 +148,5 @@ public class MystiaManager
 
     public void OnFixedUpdate()
     {
-        FixedUpdateCount++;
     }
 }
