@@ -19,10 +19,10 @@ namespace MetaMystia;
 public static class Utils
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[Utils.cs]";
    
     private static DialogPackage KMExampleDialogPackage = null;
 
-// 一个准备好了 一个没准备好的
     public static void ShowReadyDialog(bool isReady, System.Action onFinishCallback = null) 
     {
         if (KMExampleDialogPackage == null)
@@ -54,11 +54,11 @@ public static class Utils
                 previousPanelVisualMode: 0
             );
             
-            Log.LogInfo($"Opened dialog with custom text");
+            Log.LogInfo($"{LOG_TAG} Opened dialog with custom text");
         }
         catch (Exception e)
         {
-            Log.LogError($"Failed to open dialog: {e.Message}\n{e.StackTrace}");
+            Log.LogError($"{LOG_TAG} Failed to open dialog: {e.Message}\n{e.StackTrace}");
         }
     }
     public static void DumpExampleDialog()
@@ -70,29 +70,29 @@ public static class Utils
 
             if (foundAssets == null || foundAssets.Length == 0)
             {
-                Log.LogWarning("No DialogCollectionProfile assets found in memory.");
+                Log.LogWarning($"{LOG_TAG} No DialogCollectionProfile assets found in memory.");
                 return;
             }
 
-            Log.LogInfo($"Found {foundAssets.Length} DialogCollectionProfile asset(s).");
+            Log.LogInfo($"{LOG_TAG} Found {foundAssets.Length} DialogCollectionProfile asset(s).");
 
             for (var assetIndex = 0; assetIndex < foundAssets.Length; assetIndex++)
             {
                 var collection = foundAssets[assetIndex].TryCast<DialogCollectionProfile>();
                 if (collection == null)
                 {
-                    Log.LogWarning($"Object at index {assetIndex} could not be cast to DialogCollectionProfile.");
+                    Log.LogWarning($"{LOG_TAG} Object at index {assetIndex} could not be cast to DialogCollectionProfile.");
                     continue;
                 }
 
                 var allContents = collection.allContents;
                 if (allContents == null)
                 {
-                    Log.LogWarning($"DialogCollectionProfile '{collection.name}' has no entries.");
+                    Log.LogWarning($"{LOG_TAG} DialogCollectionProfile '{collection.name}' has no entries.");
                     continue;
                 }
 
-                Log.LogInfo($"--- DialogCollectionProfile '{collection.name}' ({allContents.Length} entries) ---");
+                Log.LogDebug($"{LOG_TAG} --- DialogCollectionProfile '{collection.name}' ({allContents.Length} entries) ---");
 
                 for (var i = 0; i < allContents.Length; i++)
                 {
@@ -102,17 +102,16 @@ public static class Utils
                     if (packageName == "Kyouko_EA_Dialog")
                     {
                         KMExampleDialogPackage = entry.dialogePack;
-                        Log.LogInfo($"Stored Kyouko_EA_Dialog package.");
+                        Log.LogInfo($"{LOG_TAG} Stored Kyouko_EA_Dialog package.");
                     }
 
-                    Log.LogInfo($"[{i}] id={entry.id}, package={packageName}");
+                    Log.LogDebug($"{LOG_TAG} [{i}] id={entry.id}, package={packageName}");
                 }
             }
         }
         catch (Exception e)
         {
-            Log.LogError($"Failed to dump DialogCollectionProfile contents: {e.Message}\n{e.StackTrace}");
+            Log.LogError($"{LOG_TAG} Failed to dump DialogCollectionProfile contents: {e.Message}\n{e.StackTrace}");
         }
     }
-
 };

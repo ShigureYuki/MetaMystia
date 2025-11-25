@@ -22,7 +22,7 @@ public class KyoukoManager
     private static Vector2 currectVelocity;
 
     public static bool isReady = false;
-
+    private static readonly string LOG_TAG = "[KyoukoManager.cs]";
 
     public static KyoukoManager Instance
     {
@@ -91,7 +91,7 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko in OnFixedUpdate");
+            Log.LogWarning($"{LOG_TAG} Failed to get CharacterControllerUnit for Kyouko in OnFixedUpdate");
             return;
         }
         characterUnit.UpdateInputVelocity(velocity);
@@ -113,7 +113,7 @@ public class KyoukoManager
         var characterUnit = component.Character;
         if (characterUnit == null)
         {
-            Log.LogWarning($"CharacterControllerUnit of '{KYOUKO_ID}' is null");
+            Log.LogWarning($"{LOG_TAG} CharacterControllerUnit of '{KYOUKO_ID}' is null");
             return null;
         }
 
@@ -131,7 +131,7 @@ public class KyoukoManager
         var rb = characterUnit.rb2d;
         if (rb == null)
         {
-            Log.LogWarning($"Rigidbody2D of '{KYOUKO_ID}' is null");
+            Log.LogWarning($"{LOG_TAG} Rigidbody2D of '{KYOUKO_ID}' is null");
             return null;
         }
 
@@ -148,7 +148,7 @@ public class KyoukoManager
         if (characterUnit.IsMoving != isMoving)
         {
             characterUnit.IsMoving = isMoving;
-            Log.LogDebug($"Kyouko moving state set to {isMoving}");
+            Log.LogDebug($"{LOG_TAG} Kyouko moving state set to {isMoving}");
         }
         return;
     }
@@ -158,7 +158,7 @@ public class KyoukoManager
         var rb = GetRigidbody2D();
         if (rb == null)
         {
-            Log.LogWarning("Failed to get Rigidbody2D for Kyouko");
+            Log.LogWarning($"{LOG_TAG} Failed to get Rigidbody2D for Kyouko");
             return;
         }
         actualVelocity = inputDirection;
@@ -166,7 +166,7 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko");
+            Log.LogWarning($"{LOG_TAG} Failed to get CharacterControllerUnit for Kyouko");
             return;
         }
         
@@ -174,7 +174,7 @@ public class KyoukoManager
         // 速度设置已由 OnFixedUpdate 负责
         actualVelocity = inputDirection;
         characterUnit.IsMoving = inputDirection.magnitude > 0;
-        Log.LogDebug($"Update input direction: ({inputDirection.x}, {inputDirection.y})");
+        Log.LogDebug($"{LOG_TAG} Update input direction: ({inputDirection.x}, {inputDirection.y})");
     }
 
     public void UpdateSprintState(bool isSprinting)
@@ -182,11 +182,11 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko");
+            Log.LogWarning($"{LOG_TAG} Failed to get CharacterControllerUnit for Kyouko");
             return;
         }
         characterUnit.sprintMultiplier = isSprinting ? 1.5f : 1.0f;
-        Log.LogDebug($"Update sprint state: {isSprinting}");
+        Log.LogDebug($"{LOG_TAG} Update sprint state: {isSprinting}");
     }
 
     public void UpdateOffsetPosition(Vector2 syncPosition)
@@ -194,14 +194,14 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko");
+            Log.LogWarning($"{LOG_TAG} Failed to get CharacterControllerUnit for Kyouko");
             return;
         }
         positionOffset = syncPosition - characterUnit.rb2d.position;
 
         if (positionOffset.magnitude > 3.0f) // 偏差距离超过 3 直接传送
         {
-            Log.LogMessage($"Position offset too large ({positionOffset.magnitude}), teleporting Kyouko to sync position");
+            Log.LogMessage($"{LOG_TAG} Position offset too large ({positionOffset.magnitude}), teleporting Kyouko to sync position");
             GameData.RunTime.DaySceneUtility.RunTimeDayScene.MoveCharacter("Kyouko", MapLabel, syncPosition, 0, out var oldNPCData);
             positionOffset = Vector2.zero;    
         }
@@ -212,11 +212,11 @@ public class KyoukoManager
         var characterUnit = GetCharacterUnit();
         if (characterUnit == null)
         {
-            Log.LogWarning("Failed to get CharacterControllerUnit for Kyouko");
+            Log.LogWarning($"{LOG_TAG} Failed to get CharacterControllerUnit for Kyouko");
             return;
         }
         characterUnit.MoveSpeedMultiplier = speed;
-        Log.LogDebug($"Kyouko move speed set to {speed}");
+        Log.LogDebug($"{LOG_TAG} Kyouko move speed set to {speed}");
     }
     public void SyncFromPeer(string mapLabel, bool isSprinting, Vector2 inputDirection, Vector2 position)
     {
@@ -226,10 +226,10 @@ public class KyoukoManager
                 如果 Kyouko 不在当前地图，则需更新 MapLabel 和 位置；直接更新 velocity 和 isSprinting 即可，无需进行位置修正
                 如果 Kyouko 在当前地图，更新 velocity, isSprinting，并进行位置修正
         */
-        Log.LogDebug($"[KyoukoManager.cs] SyncFromPeer, old MapLabel: {MapLabel}, new MapLabel: {mapLabel}, isSprinting: {isSprinting}, inputDirection: ({inputDirection.x}, {inputDirection.y}), position: ({position.x}, {position.y})");
+        Log.LogDebug($"{LOG_TAG} SyncFromPeer, old MapLabel: {MapLabel}, new MapLabel: {mapLabel}, isSprinting: {isSprinting}, inputDirection: ({inputDirection.x}, {inputDirection.y}), position: ({position.x}, {position.y})");
         if (mapLabel != MapLabel)
         {
-            Log.LogDebug($"Kyouko map changed from {MapLabel} to {mapLabel}, teleporting to new position");
+            Log.LogDebug($"{LOG_TAG} Kyouko map changed from {MapLabel} to {mapLabel}, teleporting to new position");
             MapLabel = mapLabel;
             GameData.RunTime.DaySceneUtility.RunTimeDayScene.MoveCharacter("Kyouko", mapLabel, position, 0, out var oldNPCData);
             UpdateInputDirection(inputDirection);
@@ -237,7 +237,7 @@ public class KyoukoManager
         }
         else
         {
-            Log.LogDebug($"Kyouko is still in the same map {MapLabel}, updating position");
+            Log.LogDebug($"{LOG_TAG} Kyouko is still in the same map {MapLabel}, updating position");
             UpdateInputDirection(inputDirection);
             UpdateSprintState(isSprinting);
             UpdateOffsetPosition(position);

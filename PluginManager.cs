@@ -16,12 +16,13 @@ public class PluginManager : MonoBehaviour
     private bool isTextVisible = true;
     private string label = "MetaMystia loaded";
     private readonly ConcurrentQueue<Action> _mainThreadQueue = new ConcurrentQueue<Action>();
+    private static readonly string LOG_TAG = "[PluginManager.cs]";
 
     public PluginManager(IntPtr ptr) : base(ptr)
     {
         if (Instance != null)
         {
-            Log.LogWarning("Another instance of PluginManager already exists! Destroying this one.");
+            Log.LogWarning($"{LOG_TAG} Another instance of PluginManager already exists! Destroying this one.");
             Destroy(this);
             return;
         }
@@ -64,11 +65,11 @@ public class PluginManager : MonoBehaviour
             try
             {
                 action();
-                Log.LogDebug("[PluginManager] Successfully executed action on main thread");
+                Log.LogDebug($"{LOG_TAG} Successfully executed action on main thread");
             }
             catch (Exception e)
             {
-                Log.LogError($"Error executing on main thread: {e}");
+                Log.LogError($"{LOG_TAG} Error executing on main thread: {e}");
             }
         }
 
@@ -76,13 +77,13 @@ public class PluginManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Backslash)) {
             isTextVisible = !isTextVisible;
-            Log.LogMessage("Toggled text visibility: " + isTextVisible);
+            Log.LogMessage($"{LOG_TAG} Toggled text visibility: " + isTextVisible);
         }
     }
 
     public void RunOnMainThread(Action action)
     {
-        Log.LogInfo($"[PluginManager.cs] Enqueue action to run on main thread");
+        Log.LogInfo($"{LOG_TAG} Enqueue action to run on main thread");
         _mainThreadQueue.Enqueue(action);
     }
 

@@ -14,9 +14,8 @@ namespace MetaMystia;
 public class CharacterInputPatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[CharacterInputPatch]";
 
-    // TODO: UpdateInputDirection 并非实际移动方法，需要额外考虑带有物理的 CharacterControllerUnit.GetTargetMovePosition 或考虑为 Kyouko 增加物理
-    // 问题复现: Mystia 顶着墙移动，对方眼中，Kyouko 穿墙飞走
     [HarmonyPatch(nameof(CharacterControllerInputGeneratorComponent.UpdateInputDirection))]
     [HarmonyPrefix]
     public static void UpdateInputDirection_Prefix(CharacterControllerInputGeneratorComponent __instance, ref Vector2 inputDirection)
@@ -37,7 +36,7 @@ public class CharacterInputPatch
         }
         catch (System.Exception e)
         {
-            Log.LogError($"Error in UpdateInputDirection_Prefix: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error in UpdateInputDirection_Prefix: {e.Message}");
         }
     }
 }
@@ -92,6 +91,7 @@ public class RunTimeSchedulerPatch
 public class DaySceneMapPatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[DaySceneMapPatch]";
 
     [HarmonyPatch(nameof(DaySceneMap.SolveAndUpdateCharacterPositionInternal))]
     [HarmonyPostfix]
@@ -115,7 +115,7 @@ public class DaySceneMapPatch
             if (persistentNPCKeys.Contains(npcKey) && MultiplayerManager.Instance.IsConnected())
             {
                 isNPCOnMap = true;
-                Log.LogMessage($"Force visible: {npcKey}");
+                Log.LogMessage($"{LOG_TAG} Force visible: {npcKey}");
             }
         }
         catch (System.Exception e)
@@ -129,6 +129,7 @@ public class DaySceneMapPatch
 public class CharacterControllerUnitPatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[CharacterControllerUnitPatch]";
     
     // 供后续调试用
     [HarmonyPatch("GetTargetMovePosition")]
@@ -137,11 +138,11 @@ public class CharacterControllerUnitPatch
     {
         try
         {
-            Log.LogDebug($"GetTargetMovePosition called with inputDirection: {inputDirection}");
+            Log.LogDebug($"{LOG_TAG} GetTargetMovePosition called with inputDirection: {inputDirection}");
         }
         catch (System.Exception e)
         {
-            Log.LogError($"Error in GetTargetMovePosition_Prefix: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error in GetTargetMovePosition_Prefix: {e.Message}");
         }
     }
 
@@ -151,11 +152,11 @@ public class CharacterControllerUnitPatch
     {
         try
         {
-            Log.LogDebug($"GetTargetMovePosition returned: {__result}");
+            Log.LogDebug($"{LOG_TAG} GetTargetMovePosition returned: {__result}");
         }
         catch (System.Exception e)
         {
-            Log.LogError($"Error in GetTargetMovePosition_Postfix: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error in GetTargetMovePosition_Postfix: {e.Message}");
         }
     }
 }
@@ -165,6 +166,7 @@ public class CharacterControllerUnitPatch
 public class CharacterControllerUnitInitializePatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[CharacterControllerUnitInitializePatch]";
 
     [HarmonyPatch("Initialize")]
     [HarmonyPrefix]
@@ -180,7 +182,7 @@ public class CharacterControllerUnitInitializePatch
         if (kyoukoNames.Any(name => __instance.name.Equals(name)))
         {
             shouldTurnOnCollider = true;
-            Log.LogWarning($"[CharacterControllerUnitInitializePatch] found {__instance.name}, forcing shouldTurnOnCollider to true");
+            Log.LogWarning($"{LOG_TAG} found {__instance.name}, forcing shouldTurnOnCollider to true");
         } 
     }
 }
@@ -189,6 +191,7 @@ public class CharacterControllerUnitInitializePatch
 public class DaySceneSceneManagerPatch
 {
     private static ManualLogSource Log => Plugin.Instance.Log;
+    private static readonly string LOG_TAG = "[DaySceneSceneManagerPatch]";
 
     [HarmonyPatch(nameof(DayScene.SceneManager.OnDayOver))]
     [HarmonyPrefix]
@@ -215,11 +218,12 @@ public class DaySceneSceneManagerPatch
 
 
 
-        Log.LogInfo("Day over detected");
+        Log.LogDebug($"{LOG_TAG} Day over detected");
 
         // 00 -> 10
         if (!MystiaManager.isReady && !KyoukoManager.isReady)
         {
+            Log.LogInfo($"{LOG_TAG} Both Mystia and Kyouko are not ready -> Mystia is ready => show **not ready** dialog");
             MultiplayerManager.Instance.SendReady();
             Utils.ShowReadyDialog(false, () => MystiaManager.isReady = true);
             return false;
@@ -228,6 +232,7 @@ public class DaySceneSceneManagerPatch
         // 01 -> 11
         if (!MystiaManager.isReady && KyoukoManager.isReady) 
         {
+            Log.LogInfo($"{LOG_TAG} Mystia is not ready but Kyouko is ready -> both are ready => show **ready** dialog");
             MultiplayerManager.Instance.SendReady();
             Utils.ShowReadyDialog(true, () => 
             {
@@ -237,9 +242,9 @@ public class DaySceneSceneManagerPatch
             return false;
         }
 
-        // 00 -> 01: Nope
+        // 00 -> 01: Not here -> MultiplayerManager handles it
 
-        // 10 -> 11: Nope
+        // 10 -> 11: Not here -> MultiplayerManager handles it
 
         // 11: 回调中直接执行 OnDayOver
         return true;

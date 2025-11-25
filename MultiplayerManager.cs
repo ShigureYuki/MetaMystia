@@ -26,6 +26,8 @@ public class MultiplayerManager
     private Thread _peerHandlerThread;
     private string _peerAddress;
 
+    private static readonly string LOG_TAG = "[MultiplayerManager.cs]";
+
     public static MultiplayerManager Instance
     {
         get
@@ -67,12 +69,12 @@ public class MultiplayerManager
     {
         if (_isRunning)
         {
-            Log.LogWarning("MultiplayerManager is already running");
+            Log.LogWarning($"{LOG_TAG} MultiplayerManager is already running");
             return;
         }
 
         _isRunning = true;
-        Log.LogInfo("Starting MultiplayerManager");
+        Log.LogInfo($"{LOG_TAG} Starting MultiplayerManager");
         peerId = "<Unknown>";
 
         StartTcpListener();
@@ -83,7 +85,7 @@ public class MultiplayerManager
         if (!_isRunning)
             return;
 
-        Log.LogInfo("Stopping MultiplayerManager");
+        Log.LogInfo($"{LOG_TAG} Stopping MultiplayerManager");
         _isRunning = false;
 
         DisconnectPeer();
@@ -94,11 +96,11 @@ public class MultiplayerManager
         }
         catch (Exception e)
         {
-            Log.LogError($"Error stopping TCP listener: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error stopping TCP listener: {e.Message}");
         }
 
         peerId = "<Unknown>";
-        Log.LogInfo("MultiplayerManager has stopped");
+        Log.LogInfo($"{LOG_TAG} MultiplayerManager has stopped");
     }
 
     public void Restart()
@@ -111,12 +113,12 @@ public class MultiplayerManager
     {
         if (_isRunning)
         {
-            Log.LogInfo("Stopping MultiplayerManager...");
+            Log.LogInfo($"{LOG_TAG} Stopping MultiplayerManager...");
             Stop();
         }
         else
         {
-            Log.LogInfo("Attempting to start MultiplayerManager...");
+            Log.LogInfo($"{LOG_TAG} Attempting to start MultiplayerManager...");
             Start();
         }
     }
@@ -129,7 +131,7 @@ public class MultiplayerManager
     public void SetPlayerId(string newId)
     {
         playerId = newId;
-        Log.LogInfo($"Player ID set to: {playerId}");
+        Log.LogInfo($"{LOG_TAG} Player ID set to: {playerId}");
     }
 
     private void StartTcpListener()
@@ -138,7 +140,7 @@ public class MultiplayerManager
         {
             _tcpListener = new TcpListener(IPAddress.Any, TCP_PORT);
             _tcpListener.Start();
-            Log.LogInfo($"TCP listener started on port {TCP_PORT}");
+            Log.LogInfo($"{LOG_TAG} TCP listener started on port {TCP_PORT}");
 
             _tcpListenerThread = new Thread(TcpListenerLoop);
             _tcpListenerThread.IsBackground = true;
@@ -146,7 +148,7 @@ public class MultiplayerManager
         }
         catch (Exception e)
         {
-            Log.LogError($"Error starting TCP listener: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error starting TCP listener: {e.Message}");
         }
     }
 
@@ -161,13 +163,13 @@ public class MultiplayerManager
                     if (_isConnected)
                     {
                         TcpClient rejectedClient = _tcpListener.AcceptTcpClient();
-                        Log.LogInfo($"Connection from {rejectedClient.Client.RemoteEndPoint} rejected (already connected)");
+                        Log.LogInfo($"{LOG_TAG} Connection from {rejectedClient.Client.RemoteEndPoint} rejected (already connected)");
                         rejectedClient.Close();
                     }
                     else
                     {
                         TcpClient client = _tcpListener.AcceptTcpClient();
-                        Log.LogInfo($"Connection from {client.Client.RemoteEndPoint} accepted");
+                        Log.LogInfo($"{LOG_TAG} Connection from {client.Client.RemoteEndPoint} accepted");
                         AcceptPeerConnection(client);
                     }
                 }
@@ -180,7 +182,7 @@ public class MultiplayerManager
             {
                 if (_isRunning)
                 {
-                    Log.LogError($"Error in TCP listener loop: {e.Message}");
+                    Log.LogError($"{LOG_TAG} Error in TCP listener loop: {e.Message}");
                 }
             }
         }
@@ -190,16 +192,16 @@ public class MultiplayerManager
     {
         if (_isConnected)
         {
-            Log.LogWarning("Already connected to a peer. Please disconnect first.");
+            Log.LogWarning($"{LOG_TAG} Already connected to a peer. Please disconnect first.");
             return false;
         }
 
         try
         {
-            Log.LogInfo($"Connecting to {peerIp}:{TCP_PORT}...");
+            Log.LogInfo($"{LOG_TAG} Connecting to {peerIp}:{TCP_PORT}...");
             TcpClient client = new TcpClient();
             client.Connect(peerIp, TCP_PORT);
-            Log.LogInfo($"Successfully connected to peer {peerIp}:{TCP_PORT}");
+            Log.LogInfo($"{LOG_TAG} Successfully connected to peer {peerIp}:{TCP_PORT}");
 
             _peerAddress = peerIp;
             _isConnected = true;
@@ -216,7 +218,7 @@ public class MultiplayerManager
         }
         catch (Exception e)
         {
-            Log.LogError($"Error connecting to peer: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error connecting to peer: {e.Message}");
             return false;
         }
     }
@@ -225,7 +227,7 @@ public class MultiplayerManager
     {
         if (_isConnected)
         {
-            Log.LogWarning("Already connected to a peer. Please disconnect first.");
+            Log.LogWarning($"{LOG_TAG} Already connected to a peer. Please disconnect first.");
             client.Close();
             return;
         }
@@ -234,7 +236,7 @@ public class MultiplayerManager
         _peerConnection = client;
         _peerAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
 
-        Log.LogInfo($"Connection from {_peerAddress} accepted");
+        Log.LogInfo($"{LOG_TAG} Connection from {_peerAddress} accepted");
 
         _peerHandlerThread = new Thread(() => HandlePeerConnection(client));
         _peerHandlerThread.IsBackground = true;
@@ -286,18 +288,18 @@ public class MultiplayerManager
         }
         catch (Exception e)
         {
-            Log.LogError($"Error handling peer connection: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error handling peer connection: {e.Message}");
         }
         finally
         {
-            Log.LogInfo("Peer connection disconnected");
+            Log.LogInfo($"{LOG_TAG} Peer connection disconnected");
             DisconnectPeer();
         }
     }
 
     private void ProcessPeerMessage(string message, TcpClient client)
     {
-        Log.LogInfo($"Received peer message: {message}");
+        Log.LogInfo($"{LOG_TAG} Received peer message: {message}");
 
         string[] parts = message.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
@@ -309,11 +311,11 @@ public class MultiplayerManager
         {
             case "ping":
                 SendToPeer("pong\n");
-                Log.LogInfo("Responding to ping with pong");
+                Log.LogInfo($"{LOG_TAG} Responding to ping with pong");
                 break;
 
             case "pong":
-                Log.LogInfo("Received pong response from peer");
+                Log.LogInfo($"{LOG_TAG} Received pong response from peer");
                 break;
 
             case "hello":
@@ -321,13 +323,13 @@ public class MultiplayerManager
                 {
                     string peerId = parts[1];
                     this.peerId = peerId;
-                    Log.LogInfo($"Received hello from peer: {peerId}");
+                    Log.LogInfo($"{LOG_TAG} Received hello from peer: {peerId}");
                 }
                 break;
             case "sync":
                 if (parts.Length < 7)
                 {
-                    Log.LogWarning("Invalid sync message format");
+                    Log.LogWarning($"{LOG_TAG} Invalid sync message format");
                     break;
                 }
                 string mapLabel = parts[1];
@@ -354,10 +356,10 @@ public class MultiplayerManager
                     });
                 }
                 // else: 00->01: Nope
-                Log.LogInfo("Kyouko is ready");
+                Log.LogInfo($"{LOG_TAG} Kyouko is ready");
                 break;
             default:
-                Log.LogWarning($"Unknown peer command: {command}");
+                Log.LogWarning($"{LOG_TAG} Unknown peer command: {command}");
                 break;
         }
     }
@@ -366,7 +368,7 @@ public class MultiplayerManager
     {
         if (!_isConnected || _peerConnection == null)
         {
-            Log.LogWarning("Cannot send message: not connected to a peer");
+            Log.LogWarning($"{LOG_TAG} Cannot send message: not connected to a peer");
             return;
         }
 
@@ -379,7 +381,7 @@ public class MultiplayerManager
         }
         catch (Exception e)
         {
-            Log.LogError($"Error sending to peer: {e.Message}");
+            Log.LogError($"{LOG_TAG} Error sending to peer: {e.Message}");
             DisconnectPeer();
         }
     }
@@ -399,19 +401,19 @@ public class MultiplayerManager
         _isConnected = false;
         _peerAddress = null;
 
-        Log.LogInfo("Peer connection disconnected");
+        Log.LogInfo($"{LOG_TAG} Peer connection disconnected");
     }
 
     public void SendPing()
     {
         if (_isConnected)
         {
-            Log.LogInfo("Sending ping to peer");
+            Log.LogInfo($"{LOG_TAG} Sending ping to peer");
             SendToPeer("ping\n");
         }
         else
         {
-            Log.LogWarning("Cannot send ping: not connected");
+            Log.LogWarning($"{LOG_TAG} Cannot send ping: not connected");
         }
     }
 
@@ -419,12 +421,12 @@ public class MultiplayerManager
     {
         if (_isConnected)
         {
-            Log.LogInfo("Sending hello to peer");
+            Log.LogInfo($"{LOG_TAG} Sending hello to peer");
             SendToPeer($"hello {GetPlayerId()}\n");
         }
         else
         {
-            Log.LogWarning("Cannot send hello: not connected");
+            Log.LogWarning($"{LOG_TAG} Cannot send hello: not connected");
         }
     }
 
@@ -501,9 +503,7 @@ public class MultiplayerManager
         var inputDirection = MystiaManager.InputDirection;
         var position = MystiaManager.Instance.GetPosition();
 
-        string payload = $"sync {mapLabel} {isSprinting} {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n";
-        Log.LogWarning("sending payload: " + payload);
-        SendToPeer(payload);
+        SendToPeer($"sync {mapLabel} {isSprinting} {inputDirection.x} {inputDirection.y} {position.x} {position.y}\n");
     }
 
     public void SendReady()
@@ -513,7 +513,7 @@ public class MultiplayerManager
             return;
         }
 
-        Log.LogInfo("Sending ready status to peer");
+        Log.LogInfo($"{LOG_TAG} Sending ready status to peer");
         SendToPeer("ready\n");
     }
 }
