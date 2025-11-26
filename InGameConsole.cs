@@ -3,13 +3,13 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Common.CharacterUtility;
 using Common.UI;
-using System.Diagnostics;
-using System.ComponentModel.DataAnnotations;
+using Il2CppInterop.Runtime;
 
 namespace MetaMystia
 {
     public class InGameConsole
     {
+        private static BepInEx.Logging.ManualLogSource PluginLog => Plugin.Instance.Log;
         private bool _isOpen = false;
         public bool IsOpen
         {
@@ -23,16 +23,21 @@ namespace MetaMystia
                 }
             }
         }
-
         private string input = "";
         private Vector2 scrollPosition;
         private List<string> logs = [];
         private List<string> inputs = [];
         private int inputsCursor = 0;
         private const int MaxLogs = 1024;
-        private bool focusTextField = false;
+        private bool focusTextField = true;
+        private bool moveCursor = false;
         private const string TextFieldControlName = "ConsoleInput";
         private bool justOpened = false;
+
+        public void AddPeerMessage(string message)
+        {
+            Log($"[Peer] {message}");
+        }
 
         private void UpdateGameInputState()
         {
@@ -40,11 +45,11 @@ namespace MetaMystia
             if (inputGenerator != null)
             {
                 inputGenerator.enabled = !IsOpen;
-                PluginManager.Log.LogMessage($"Console: InputGenerator enabled = {inputGenerator.enabled}");
+                PluginLog.LogMessage($"Console: InputGenerator enabled = {inputGenerator.enabled}");
             }
             else
             {
-                PluginManager.Log.LogWarning("Console: No CharacterControllerInputGeneratorComponent found.");
+                PluginLog.LogWarning("Console: No CharacterControllerInputGeneratorComponent found.");
             }
 
             try
@@ -61,11 +66,11 @@ namespace MetaMystia
                     UniversalGameManager.CloseInputBlockerMenu();
                 }
                 
-                PluginManager.Log.LogMessage($"Console: UniversalGameManager input availability set to {!IsOpen}");
+                PluginLog.LogMessage($"Console: UniversalGameManager input availability set to {!IsOpen}");
             }
             catch (System.Exception e)
             {
-                PluginManager.Log.LogWarning($"Console: Failed to update UniversalGameManager input: {e.Message}");
+                PluginLog.LogWarning($"Console: Failed to update UniversalGameManager input: {e.Message}");
             }
 
             // 3. Toggle EventSystem to block UI navigation (Main Menu AD/JK)
@@ -75,7 +80,7 @@ namespace MetaMystia
             if (eventSystem != null)
             {
                 eventSystem.sendNavigationEvents = !IsOpen;
-                PluginManager.Log.LogMessage($"Console: EventSystem sendNavigationEvents = {eventSystem.sendNavigationEvents}");
+                PluginLog.LogMessage($"Console: EventSystem sendNavigationEvents = {eventSystem.sendNavigationEvents}");
             }
         }
 
@@ -137,6 +142,8 @@ namespace MetaMystia
                     inputsCursor++;
                 }
                 input = inputs[^inputsCursor];
+                focusTextField = false;
+                moveCursor = true;
                 e.Use();
             }
 
@@ -152,6 +159,8 @@ namespace MetaMystia
                 {
                     input = "";
                 }
+                focusTextField = false;
+                moveCursor = true;
                 e.Use();
             }
 
@@ -194,9 +203,24 @@ namespace MetaMystia
             if (focusTextField)
             {
                 GUI.FocusControl(TextFieldControlName);
-                PluginManager.Log.LogMessage("forcing focus control");
+                PluginLog.LogMessage("forcing focus control");
                 focusTextField = false;
             }
+
+            // Move cursor to the last of input
+            if (moveCursor && Event.current.type == EventType.Repaint)
+            {
+                int id = GUIUtility.keyboardControl;
+                var obj = GUIUtility.GetStateObject(Il2CppType.Of<TextEditor>(), id);
+                if (obj != null)
+                {
+                    var editor = obj.Cast<TextEditor>();
+                    editor.cursorIndex = input.Length;
+                    editor.selectIndex = input.Length;
+                }
+                moveCursor = false;
+            }
+
 
             // Execute command if Enter was pressed
             if (submit)
@@ -207,14 +231,14 @@ namespace MetaMystia
                     inputs.Add(input);
                     inputsCursor = 0;
                     input = "";
-                } 
+                }
                 else
                 {
                     IsOpen = false;
                     return;
                 }
             }
-            
+
             // Consume all other KeyDown events to prevent game from receiving them via IMGUI
             if (e.type == EventType.KeyDown && e.keyCode != KeyCode.None)
             {
@@ -231,7 +255,7 @@ namespace MetaMystia
 
         private void ExecuteCommand(string cmd)
         {
-            PluginManager.Log.LogMessage($"Console Command: {cmd}");
+            PluginLog.LogMessage($"Console Command: {cmd}");
             Log("> " + cmd);
 
             string[] parts = cmd.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -297,7 +321,7 @@ namespace MetaMystia
                 return;
             }
             string message = string.Join(" ", args);
-            PluginManager.Log.LogMessage($"[Console] {message}");
+            PluginLog.LogMessage($"[Console] {message}");
             Log($"Logged: {message}");
         }
 
@@ -413,17 +437,48 @@ namespace MetaMystia
                 case "connect":
                     if (args.Length < 2)
                     {
-                        Log("Usage: mp connect <ip>");
+                        Log("Usage: mp connect <ip> <port>(optional)");
                         break;
                     }
-                    string targetIp = args[1];
-                    if (MpManager.Instance.ConnectToPeer(targetIp))
+                    PluginLog.LogMessage($"args length: {args.Length}, arg[1] {args[1]}" );
+                    string address = args[1];
+
+                    string host;
+                    bool result;
+
+                    if (args.Length == 2)
                     {
-                        Log($"Connected to {targetIp}");
+                        int idx = address.LastIndexOf(':');
+                        if (idx > 0 && idx != address.Length - 1)
+                        {
+                            host = address[..idx];
+                            string portStr = address[(idx + 1)..];
+
+                            if (int.TryParse(portStr, out int port))
+                                result = MpManager.Instance.ConnectToPeer(host, port);
+                            else
+                                result = MpManager.Instance.ConnectToPeer(address);
+                        }
+                        else
+                        {
+                            result = MpManager.Instance.ConnectToPeer(address);
+                        }
                     }
                     else
                     {
-                        Log($"Failed to connect to {targetIp}");
+                        if (int.TryParse(args[2], out int port))
+                            result = MpManager.Instance.ConnectToPeer(address, port);
+                        else
+                            result = MpManager.Instance.ConnectToPeer(address);
+                    }
+
+                    if (result)
+                    {
+                        Log($"Connected to {address}");
+                    }
+                    else
+                    {
+                        Log($"Failed to connect to {address}");
                     }
                     break;
                 case "disconnect":
@@ -435,6 +490,23 @@ namespace MetaMystia
                     {
                         MpManager.Instance.DisconnectPeer();
                         Log("Disconnected");
+                    }
+                    break; 
+                case "message":
+                    if (args.Length < 2)
+                    {
+                        Log("Usage: mp message <text>");
+                        break;
+                    }
+                    string text = args[1];
+                    if (!MpManager.Instance.IsConnected)
+                    {
+                        Log("No active connection");
+                    }
+                    else
+                    {
+                        MpManager.Instance.SendMessage(text);
+                        Log($"Sent {text}");
                     }
                     break; 
                 default:
